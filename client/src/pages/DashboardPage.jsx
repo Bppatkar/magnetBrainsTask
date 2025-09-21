@@ -1,4 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext.jsx';
+import { useTasks } from '../context/TaskContext.jsx';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   DndContext,
   closestCenter,
@@ -8,22 +11,21 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useAuth } from '../context/AuthContext.jsx';
-import { useTasks } from '../context/TaskContext.jsx';
 import TaskForm from '../components/TaskForm.jsx';
 import PriorityColumn from '../components/PriorityColumn.jsx';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaHome } from 'react-icons/fa';
+import Navbar from '../components/Navbar.jsx';
 
 const DashboardPage = () => {
   const { user } = useAuth();
   const { tasks, loading, error, fetchTasks, updateTask } = useTasks();
   const [editingTask, setEditingTask] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -33,10 +35,19 @@ const DashboardPage = () => {
   );
 
   useEffect(() => {
-    if (user) {
-      fetchTasks();
+    if (!user) {
+      navigate('/login', { replace: true });
+      return;
     }
+
+    fetchTasks();
   }, [user]);
+
+  useEffect(() => {
+    if (location.state?.fromLogin) {
+      console.log('Welcome back!');
+    }
+  }, [location]);
 
   const handleDragEnd = async (event) => {
     const { active, over } = event;
@@ -68,17 +79,26 @@ const DashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 text-white">
+      {/* Navigation Bar */}
+      <Navbar />
+
       <div className="container mx-auto p-6">
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 mt-4">
           <div>
             <h1 className="text-4xl font-bold mb-2">Team Dashboard</h1>
             <p className="text-gray-300">
               Welcome back, {user?.username}! Manage your team's tasks.
             </p>
+            <p className="text-sm text-cyan-300 mt-1">
+              You can only update tasks you created
+            </p>
           </div>
 
           <button
-            onClick={() => setShowForm(!showForm)}
+            onClick={() => {
+              setEditingTask(null);
+              setShowForm(!showForm);
+            }}
             className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-full flex items-center space-x-2 transition-all duration-300 mt-4 lg:mt-0"
           >
             <FaPlus />
@@ -97,7 +117,10 @@ const DashboardPage = () => {
             <TaskForm
               taskToEdit={editingTask}
               setEditingTask={setEditingTask}
-              onSuccess={() => setShowForm(false)}
+              onSuccess={() => {
+                setShowForm(false);
+                setEditingTask(null);
+              }}
             />
           </div>
         )}
@@ -113,7 +136,10 @@ const DashboardPage = () => {
                 key={priority}
                 priority={priority}
                 tasks={tasks.filter((task) => task.priority === priority)}
-                onEditTask={setEditingTask}
+                onEditTask={(task) => {
+                  setEditingTask(task);
+                  setShowForm(true);
+                }}
               />
             ))}
           </div>

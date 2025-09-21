@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { TaskProvider } from './context/TaskContext.jsx';
 import { UserProvider } from './context/UserContext.jsx';
@@ -15,6 +15,7 @@ import './App.css';
 
 const AppContent = () => {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -24,10 +25,13 @@ const AppContent = () => {
     );
   }
 
+  // Don't show navbar on dashboard pages
+  const showNavbar = !location.pathname.startsWith('/dashboard');
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <Navbar />
-      <main className="container mx-auto p-4">
+      {showNavbar && <Navbar />}
+      <main className={showNavbar ? 'container mx-auto p-4' : ''}>
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<HomePage />} />
@@ -46,7 +50,7 @@ const AppContent = () => {
 
           {/* Protected routes */}
           <Route
-            path="/dashboard"
+            path="/dashboard/*"
             element={
               <PrivateRoute>
                 <DashboardPage />
