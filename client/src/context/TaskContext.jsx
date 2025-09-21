@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useState, useContext } from 'react';
 import api from '../api/api.js';
 
 export const TaskContext = createContext();
@@ -13,9 +13,11 @@ export const TaskProvider = ({ children }) => {
     setError(null);
     try {
       const res = await api.get('/tasks');
-      setTasks(res.data);
+      setTasks(res.data || []);
     } catch (error) {
-      setError(error.response?.data?.message || 'Failed to fetch tasks');
+      const message = error.response?.data?.message || 'Failed to fetch tasks';
+      setError(message);
+      console.error('Fetch tasks error:', error);
     } finally {
       setLoading(false);
     }
@@ -25,10 +27,12 @@ export const TaskProvider = ({ children }) => {
     setError(null);
     try {
       const res = await api.post('/tasks', taskData);
-      setTasks((prevTasks) => [...prevTasks, res.data]);
+      setTasks((prevTasks) => [res.data, ...prevTasks]);
+      return res.data;
     } catch (error) {
-      setError(error.response?.data?.message || 'Failed to add tasks');
-      throw error;
+      const message = error.response?.data?.message || 'Failed to add task';
+      setError(message);
+      throw new Error(message);
     }
   };
 
@@ -39,9 +43,11 @@ export const TaskProvider = ({ children }) => {
       setTasks((prevTasks) =>
         prevTasks.map((task) => (task._id === taskId ? res.data : task))
       );
+      return res.data;
     } catch (error) {
-      setError(error.response?.data?.message || 'failed to update tasks');
-      throw error;
+      const message = error.response?.data?.message || 'Failed to update task';
+      setError(message);
+      throw new Error(message);
     }
   };
 
@@ -51,8 +57,9 @@ export const TaskProvider = ({ children }) => {
       await api.delete(`/tasks/${taskId}`);
       setTasks((prevTasks) => prevTasks.filter((task) => task._id !== taskId));
     } catch (error) {
-      setError(error.response?.data?.message || 'failed to delete tasks');
-      throw error;
+      const message = error.response?.data?.message || 'Failed to delete task';
+      setError(message);
+      throw new Error(message);
     }
   };
 
@@ -68,4 +75,11 @@ export const TaskProvider = ({ children }) => {
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
 };
-export const useTasks = () => useContext(TaskContext);
+
+export const useTasks = () => {
+  const context = useContext(TaskContext);
+  if (!context) {
+    throw new Error('useTasks must be used within a TaskProvider');
+  }
+  return context;
+};

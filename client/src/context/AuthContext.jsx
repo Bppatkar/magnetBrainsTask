@@ -10,12 +10,12 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      api
-        .get('/auth/profile')
+      api.get('/auth/profile')
         .then((res) => {
           setUser({ ...res.data, token });
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error('Auth check failed:', error);
           localStorage.removeItem('token');
           setUser(null);
         })
@@ -34,30 +34,22 @@ export const AuthProvider = ({ children }) => {
       setUser(res.data);
       return res.data;
     } catch (error) {
-      console.error(
-        'Login failed:',
-        error.response?.data?.message || 'Server error'
-      );
-      throw error;
+      const message = error.response?.data?.message || 'Login failed';
+      console.error('Login failed:', message);
+      throw new Error(message);
     }
   };
 
   const register = async (username, email, password) => {
     try {
-      const res = await api.post('/auth/register', {
-        username,
-        email,
-        password,
-      });
+      const res = await api.post('/auth/register', { username, email, password });
       localStorage.setItem('token', res.data.token);
       setUser(res.data);
       return res.data;
     } catch (error) {
-      console.error(
-        'Registration failed:',
-        error.response?.data?.message || 'Server error'
-      );
-      throw error;
+      const message = error.response?.data?.message || 'Registration failed';
+      console.error('Registration failed:', message);
+      throw new Error(message);
     }
   };
 
@@ -76,7 +68,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

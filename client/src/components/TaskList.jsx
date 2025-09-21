@@ -7,7 +7,7 @@ import {
   FaCheckCircle,
   FaHourglassHalf,
 } from 'react-icons/fa';
-import { useTasks } from '../hooks/useTasks.jsx';
+import { useTasks } from "../context/TaskContext.jsx";
 
 const TaskList = ({ tasks, onEditTask }) => {
   const [showModal, setShowModal] = useState(false);

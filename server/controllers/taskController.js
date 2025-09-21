@@ -1,31 +1,44 @@
 import Task from '../models/Task.js';
 
 const createTask = async (req, res) => {
-  const { title, description, dueDate, priority, assignedTo } = req.body;
-
   try {
+    const { title, description, dueDate, priority, assignedTo } = req.body;
+
     const task = new Task({
       title,
       description,
       dueDate,
       priority,
-      assignedTo,
+      assignedTo: assignedTo || req.user._id, // Use current user if no assignedTo provided
       createdBy: req.user._id,
     });
-    const createdTask = await task.save();
-    res.status(201).json(createdTask);
+
+    const savedTask = await task.save();
+
+    // Populate the created task
+    const populatedTask = await Task.findById(savedTask._id)
+      .populate('assignedTo', 'username email')
+      .populate('createdBy', 'username email');
+
+    res.status(201).json(populatedTask);
   } catch (error) {
+    console.error('Create task error:', error);
     res.status(500).json({ message: error.message });
   }
 };
 
 const getTasks = async (req, res) => {
   try {
-    const tasks = await Task.find({ assignedTo: req.user._id })
-      .populate('assignedTo', 'username')
-      .populate('createdBy', 'username');
+    const tasks = await Task.find({
+      $or: [{ assignedTo: req.user._id }, { createdBy: req.user._id }],
+    })
+      .populate('assignedTo', 'username email')
+      .populate('createdBy', 'username email')
+      .sort({ createdAt: -1 }); // Most recent first
+
     res.json(tasks);
   } catch (error) {
+    console.error('Get tasks error:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -33,15 +46,19 @@ const getTasks = async (req, res) => {
 const getTaskById = async (req, res) => {
   try {
     const task = await Task.findById(req.params.id)
-      .populate('assignedTo', 'username')
-      .populate('createdBy', 'username');
+      .populate('assignedTo', 'username email')
+      .populate('createdBy', 'username email');
 
     if (!task) {
       return res.status(404).json({ message: 'Task not found' });
     }
 
-    // Ensuring the task belongs to the user
-    if (task.assignedTo.toString() !== req.user._id.toString()) {
+    // Check if user has access to this task
+    const hasAccess =
+      task.assignedTo._id.toString() === req.user._id.toString() ||
+      task.createdBy._id.toString() === req.user._id.toString();
+
+    if (!hasAccess) {
       return res
         .status(401)
         .json({ message: 'Not authorized to view this task' });
@@ -49,6 +66,7 @@ const getTaskById = async (req, res) => {
 
     res.json(task);
   } catch (error) {
+    console.error('Get task by ID error:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -57,29 +75,39 @@ const updateTask = async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
 
-    if (task) {
-      // Only allow the assigned user or admin to update
-      if (
-        task.assignedTo.toString() !== req.user._id.toString() &&
-        req.user.role !== 'admin'
-      ) {
-        return res
-          .status(401)
-          .json({ message: 'Not authorized to update this task' });
-      }
-
-      task.title = req.body.title || task.title;
-      task.description = req.body.description || task.description;
-      task.dueDate = req.body.dueDate || task.dueDate;
-      task.priority = req.body.priority || task.priority;
-      task.status = req.body.status || task.status;
-
-      const updatedTask = await task.save();
-      res.json(updatedTask);
-    } else {
-      res.status(404).json({ message: 'Task not found' });
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
     }
+
+    // Check authorization
+    const canUpdate =
+      task.assignedTo.toString() === req.user._id.toString() ||
+      task.createdBy.toString() === req.user._id.toString() ||
+      req.user.role === 'admin';
+
+    if (!canUpdate) {
+      return res
+        .status(401)
+        .json({ message: 'Not authorized to update this task' });
+    }
+
+    // Update fields
+    Object.keys(req.body).forEach((key) => {
+      if (req.body[key] !== undefined) {
+        task[key] = req.body[key];
+      }
+    });
+
+    const updatedTask = await task.save();
+
+    // Populate and return
+    const populatedTask = await Task.findById(updatedTask._id)
+      .populate('assignedTo', 'username email')
+      .populate('createdBy', 'username email');
+
+    res.json(populatedTask);
   } catch (error) {
+    console.error('Update task error:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -88,23 +116,25 @@ const deleteTask = async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
 
-    if (task) {
-      // Only allow the creator or admin to delete a task
-      if (
-        task.createdBy.toString() !== req.user._id.toString() &&
-        req.user.role !== 'admin'
-      ) {
-        return res
-          .status(401)
-          .json({ message: 'Not authorized to delete this task' });
-      }
-
-      await task.deleteOne();
-      res.json({ message: 'Task removed' });
-    } else {
-      res.status(404).json({ message: 'Task not found' });
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
     }
+
+    // Only creator or admin can delete
+    const canDelete =
+      task.createdBy.toString() === req.user._id.toString() ||
+      req.user.role === 'admin';
+
+    if (!canDelete) {
+      return res
+        .status(401)
+        .json({ message: 'Not authorized to delete this task' });
+    }
+
+    await Task.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Task deleted successfully' });
   } catch (error) {
+    console.error('Delete task error:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -113,14 +143,34 @@ const updateTaskStatus = async (req, res) => {
   try {
     const { status } = req.body;
     const task = await Task.findById(req.params.id);
-    if (task) {
-      task.status = status;
-      const updatedTask = await task.save();
-      res.json(updatedTask);
-    } else {
-      res.status(404).json({ message: 'Task not found' });
+
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
     }
+
+    // Check authorization
+    const canUpdate =
+      task.assignedTo.toString() === req.user._id.toString() ||
+      task.createdBy.toString() === req.user._id.toString() ||
+      req.user.role === 'admin';
+
+    if (!canUpdate) {
+      return res
+        .status(401)
+        .json({ message: 'Not authorized to update this task' });
+    }
+
+    task.status = status;
+    const updatedTask = await task.save();
+
+    // Populate and return
+    const populatedTask = await Task.findById(updatedTask._id)
+      .populate('assignedTo', 'username email')
+      .populate('createdBy', 'username email');
+
+    res.json(populatedTask);
   } catch (error) {
+    console.error('Update task status error:', error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -129,18 +179,37 @@ const updateTaskPriority = async (req, res) => {
   try {
     const { priority } = req.body;
     const task = await Task.findById(req.params.id);
-    if (task) {
-      task.priority = priority;
-      const updatedTask = await task.save();
-      res.json(updatedTask);
-    } else {
-      res.status(404).json({ message: 'Task not found' });
+
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found' });
     }
+
+    // Check authorization
+    const canUpdate =
+      task.assignedTo.toString() === req.user._id.toString() ||
+      task.createdBy.toString() === req.user._id.toString() ||
+      req.user.role === 'admin';
+
+    if (!canUpdate) {
+      return res
+        .status(401)
+        .json({ message: 'Not authorized to update this task' });
+    }
+
+    task.priority = priority;
+    const updatedTask = await task.save();
+
+    // Populate and return
+    const populatedTask = await Task.findById(updatedTask._id)
+      .populate('assignedTo', 'username email')
+      .populate('createdBy', 'username email');
+
+    res.json(populatedTask);
   } catch (error) {
+    console.error('Update task priority error:', error);
     res.status(500).json({ message: error.message });
   }
 };
-
 export {
   createTask,
   getTasks,

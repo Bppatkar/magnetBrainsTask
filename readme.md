@@ -19,8 +19,6 @@
 │ │ ├── /context
 │ │ │ ├── AuthContext.jsx
 │ │ │ └── TaskContext.jsx
-│ │ ├── /hooks
-│ │ │ └── useTasks.jsx
 │ │ ├── App.jsx
 │ │ ├── main.jsx
 │ │ ├── tailwind.config.js

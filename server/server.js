@@ -19,23 +19,35 @@ app.use(express.json());
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      process.env.CLIENT_URL,
+    ].filter(Boolean),
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 
 // rate limiting to prevent brute-force attacks
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
+  message: { message: 'Too many requests, please try again later' },
 });
-
 app.use(limiter);
 
 // logging middleware
 app.use(expressLogger);
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'Server is running',
+    timestamp: new Date().toISOString(),
+  });
+});
 
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
