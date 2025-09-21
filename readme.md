@@ -13,6 +13,7 @@
 │ │ │ ├── UserAuth.js
 │ │ │ ├── Navbar.js
 │ │ │ └── ConfirmationModal.js
+│ │ │ └── privateRoute.js
 │ │ ├── /pages
 │ │ │ ├── HomePage.js
 │ │ │ ├── LoginPage.js
