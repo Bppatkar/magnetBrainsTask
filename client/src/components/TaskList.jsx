@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import ConfirmationModal from './ConfirmationModal.js';
+import ConfirmationModal from './ConfirmationModal.jsx';
 import {
   FaTrash,
   FaEdit,
   FaCheckCircle,
   FaHourglassHalf,
 } from 'react-icons/fa';
-import { useTasks } from '../context/TaskContext.js';
+import { useTasks } from '../context/TaskProvider.jsx';
 
 const TaskList = ({ tasks, onEditTask }) => {
   const [showModal, setShowModal] = useState(false);

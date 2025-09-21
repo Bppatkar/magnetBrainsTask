@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import TaskList from '../components/TaskList.js';
-import TaskForm from '../components/TaskForm.js';
-import { useAuth } from '../hooks/useAuth.js';
-import { useTasks } from '../context/TaskContext.js';
+import TaskList from '../components/TaskList.jsx';
+import TaskForm from '../components/TaskForm.jsx';
+import { useAuth } from '../hooks/useAuth.jsx';
+import { useTasks } from '../context/TaskProvider.jsx';
 
 const DashboardPage = () => {
   const { user } = useAuth();
@@ -12,14 +12,15 @@ const DashboardPage = () => {
     if (user) {
       fetchTasks();
     }
-  }, [user]);
+  }, [user, fetchTasks]);
 
-  if (loading)
+  if (loading) {
     return (
       <div className="text-center mt-8 text-white text-xl">
         Loading tasks...
       </div>
     );
+  }
   if (error)
     return <div className="text-center mt-8 text-red-500 text-xl">{error}</div>;
 

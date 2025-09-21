@@ -6,25 +6,24 @@
 │ │ │ ├── api.js
 │ │ ├── /assets
 │ │ ├── /components
-│ │ │ ├── TaskForm.js
-│ │ │ ├── TaskList.js
-│ │ │ ├── TaskDetail.js
-│ │ │ ├── TaskEdit.js
-│ │ │ ├── UserAuth.js
+│ │ │ ├── TaskForm.jsx
+│ │ │ ├── TaskList.jsx
+│ │ │ ├── UserAuth.jsx
 │ │ │ ├── Navbar.js
-│ │ │ └── ConfirmationModal.js
-│ │ │ └── privateRoute.js
+│ │ │ └── ConfirmationModal.jsx
+│ │ │ └── privateRoute.jsx
 │ │ ├── /pages
-│ │ │ ├── HomePage.js
-│ │ │ ├── LoginPage.js
-│ │ │ └── DashboardPage.js
+│ │ │ ├── HomePage.jsx
+│ │ │ ├── LoginPage.jsx
+│ │ │ └── DashboardPage.jsx
 │ │ ├── /context
-│ │ │ ├── AuthContext.js
-│ │ │ └── TaskContext.js
+│ │ │ ├── AuthContext.jsx
+│ │ │ └── TaskContext.jsx
 │ │ ├── /hooks
-│ │ │ └── useAuth.js
-│ │ ├── App.js
-│ │ ├── index.js
+│ │ │ └── useAuth.jsx
+│ │ │ └── useTasks.jsx
+│ │ ├── App.jsx
+│ │ ├── main.jsx
 │ │ ├── tailwind.config.js
 │ │ └── styles.css
 ├── /server

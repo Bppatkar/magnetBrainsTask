@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthProvider.jsx';
 import { FaSignOutAlt, FaTasks } from 'react-icons/fa';
 
 const Navbar = () => {
@@ -14,7 +14,10 @@ const Navbar = () => {
   return (
     <nav className="bg-card shadow-md">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <Link to="/" className="text-white text-3xl font-bold flex items-center">
+        <Link
+          to="/"
+          className="text-white text-3xl font-bold flex items-center"
+        >
           <FaTasks className="mr-2 text-blue-500" />
           TaskFlow
         </Link>

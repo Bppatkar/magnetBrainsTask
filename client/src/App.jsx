@@ -1,13 +1,13 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext.js';
-import { TaskProvider } from './context/TaskContext.js';
-import HomePage from './pages/HomePage.js';
-import LoginPage from './pages/LoginPage.js';
-import DashboardPage from './pages/DashboardPage.js';
-import TaskDetailPage from './pages/TaskDetailPage.js';
-import PrivateRoute from './components/PrivateRoute.js';
-import Navbar from './components/Navbar.js';
-import './styles.css';
+import AuthProvider from './context/AuthProvider.jsx';
+import TaskProvider from './context/TaskProvider.jsx';
+import HomePage from './pages/HomePage.jsx';
+import LoginPage from './pages/LoginPage.jsx';
+import DashboardPage from './pages/DashboardPage.jsx';
+import TaskDetailPage from './pages/TaskDetailPage.jsx';
+import PrivateRoute from './components/PrivateRoute.jsx';
+import Navbar from './components/Navbar.jsx';
+import './App.css';
 
 function App() {
   return (
@@ -20,8 +20,22 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />
-                <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
-                <Route path="/tasks/:id" element={<PrivateRoute><TaskDetailPage /></PrivateRoute>} />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <PrivateRoute>
+                      <DashboardPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/tasks/:id"
+                  element={
+                    <PrivateRoute>
+                      <TaskDetailPage />
+                    </PrivateRoute>
+                  }
+                />
               </Routes>
             </main>
           </div>

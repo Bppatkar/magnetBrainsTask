@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useTasks } from '../context/TaskContext.js';
-import { useAuth } from '../context/AuthContext.js';
+import { useTasks } from '../context/TaskProvider.jsx';
+import { useAuth } from '../context/AuthProvider.jsx';
 import { useNavigate } from 'react-router-dom';
 import { FaPlus, FaSave, FaTimes } from 'react-icons/fa';
 
