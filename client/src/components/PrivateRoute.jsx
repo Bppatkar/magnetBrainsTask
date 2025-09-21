@@ -7,17 +7,17 @@ const PrivateRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-2xl font-semibold text-white">
-        Loading...
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-2xl font-semibold text-white">Loading...</div>
       </div>
     );
   }
 
-  return user ? (
-    children
-  ) : (
-    <Navigate to="/login" state={{ from: location }} replace />
-  );
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
 };
 
 export default PrivateRoute;

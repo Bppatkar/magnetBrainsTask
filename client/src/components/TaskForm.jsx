@@ -48,7 +48,7 @@ const TaskForm = ({ taskToEdit, setEditingTask }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null); // Fixed: was setError(e)
+    setError(null);
     setLoading(true);
     try {
       const taskDataWithUser = { ...formData, assignedTo: user._id };

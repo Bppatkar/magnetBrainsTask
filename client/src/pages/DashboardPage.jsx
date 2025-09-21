@@ -33,7 +33,9 @@ const DashboardPage = () => {
         <TaskForm taskToEdit={editingTask} setEditingTask={setEditingTask} />
       </div>
       <div className="lg:w-2/3">
-        <h2 className="text-3xl font-bold mb-4 text-white">Your Tasks</h2>
+        <h2 className="text-3xl font-bold mb-4 text-white">
+          Your's and Other's Tasks
+        </h2>
         {error && (
           <div className="bg-red-500 text-white p-4 rounded mb-4">
             {error}

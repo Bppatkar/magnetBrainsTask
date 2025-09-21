@@ -2,14 +2,14 @@ import Task from '../models/Task.js';
 
 const createTask = async (req, res) => {
   try {
-    const { title, description, dueDate, priority, assignedTo } = req.body;
+    const { title, description, dueDate, priority } = req.body;
 
     const task = new Task({
       title,
       description,
       dueDate,
       priority,
-      assignedTo: assignedTo || req.user._id, // Use current user if no assignedTo provided
+      assignedTo: req.user._id,
       createdBy: req.user._id,
     });
 
@@ -23,23 +23,29 @@ const createTask = async (req, res) => {
     res.status(201).json(populatedTask);
   } catch (error) {
     console.error('Create task error:', error);
-    res.status(500).json({ message: error.message });
+    if (!res.headersSent) {
+      res.status(500).json({
+        message: error.message || 'Failed to fetch tasks',
+      });
+    }
   }
 };
 
 const getTasks = async (req, res) => {
   try {
-    const tasks = await Task.find({
-      $or: [{ assignedTo: req.user._id }, { createdBy: req.user._id }],
-    })
+    const tasks = await Task.find({})
       .populate('assignedTo', 'username email')
       .populate('createdBy', 'username email')
-      .sort({ createdAt: -1 }); // Most recent first
+      .sort({ createdAt: -1 });
 
     res.json(tasks);
   } catch (error) {
     console.error('Get tasks error:', error);
-    res.status(500).json({ message: error.message });
+    if (!res.headersSent) {
+      res.status(500).json({
+        message: error.message || 'Failed to fetch tasks',
+      });
+    }
   }
 };
 
@@ -52,18 +58,6 @@ const getTaskById = async (req, res) => {
     if (!task) {
       return res.status(404).json({ message: 'Task not found' });
     }
-
-    // Check if user has access to this task
-    const hasAccess =
-      task.assignedTo._id.toString() === req.user._id.toString() ||
-      task.createdBy._id.toString() === req.user._id.toString();
-
-    if (!hasAccess) {
-      return res
-        .status(401)
-        .json({ message: 'Not authorized to view this task' });
-    }
-
     res.json(task);
   } catch (error) {
     console.error('Get task by ID error:', error);
@@ -79,16 +73,11 @@ const updateTask = async (req, res) => {
       return res.status(404).json({ message: 'Task not found' });
     }
 
-    // Check authorization
-    const canUpdate =
-      task.assignedTo.toString() === req.user._id.toString() ||
-      task.createdBy.toString() === req.user._id.toString() ||
-      req.user.role === 'admin';
-
-    if (!canUpdate) {
+    // Only the creator can update their task
+    if (task.createdBy.toString() !== req.user._id.toString()) {
       return res
         .status(401)
-        .json({ message: 'Not authorized to update this task' });
+        .json({ message: 'You can only update tasks you created' });
     }
 
     // Update fields
@@ -97,7 +86,6 @@ const updateTask = async (req, res) => {
         task[key] = req.body[key];
       }
     });
-
     const updatedTask = await task.save();
 
     // Populate and return
@@ -108,7 +96,11 @@ const updateTask = async (req, res) => {
     res.json(populatedTask);
   } catch (error) {
     console.error('Update task error:', error);
-    res.status(500).json({ message: error.message });
+    if (!res.headersSent) {
+      res.status(500).json({
+        message: error.message || 'Internal server error',
+      });
+    }
   }
 };
 
@@ -120,15 +112,10 @@ const deleteTask = async (req, res) => {
       return res.status(404).json({ message: 'Task not found' });
     }
 
-    // Only creator or admin can delete
-    const canDelete =
-      task.createdBy.toString() === req.user._id.toString() ||
-      req.user.role === 'admin';
-
-    if (!canDelete) {
+    if (task.createdBy.toString() !== req.user._id.toString()) {
       return res
         .status(401)
-        .json({ message: 'Not authorized to delete this task' });
+        .json({ message: 'You can only delete tasks you created' });
     }
 
     await Task.findByIdAndDelete(req.params.id);
@@ -148,22 +135,15 @@ const updateTaskStatus = async (req, res) => {
       return res.status(404).json({ message: 'Task not found' });
     }
 
-    // Check authorization
-    const canUpdate =
-      task.assignedTo.toString() === req.user._id.toString() ||
-      task.createdBy.toString() === req.user._id.toString() ||
-      req.user.role === 'admin';
-
-    if (!canUpdate) {
+    if (task.createdBy.toString() !== req.user._id.toString()) {
       return res
         .status(401)
-        .json({ message: 'Not authorized to update this task' });
+        .json({ message: 'You can only update tasks you created' });
     }
 
     task.status = status;
     const updatedTask = await task.save();
 
-    // Populate and return
     const populatedTask = await Task.findById(updatedTask._id)
       .populate('assignedTo', 'username email')
       .populate('createdBy', 'username email');
@@ -171,7 +151,11 @@ const updateTaskStatus = async (req, res) => {
     res.json(populatedTask);
   } catch (error) {
     console.error('Update task status error:', error);
-    res.status(500).json({ message: error.message });
+    if (!res.headersSent) {
+      res.status(500).json({
+        message: error.message || 'Internal server error',
+      });
+    }
   }
 };
 
@@ -184,16 +168,10 @@ const updateTaskPriority = async (req, res) => {
       return res.status(404).json({ message: 'Task not found' });
     }
 
-    // Check authorization
-    const canUpdate =
-      task.assignedTo.toString() === req.user._id.toString() ||
-      task.createdBy.toString() === req.user._id.toString() ||
-      req.user.role === 'admin';
-
-    if (!canUpdate) {
+    if (task.createdBy.toString() !== req.user._id.toString()) {
       return res
         .status(401)
-        .json({ message: 'Not authorized to update this task' });
+        .json({ message: 'You can only update tasks you created' });
     }
 
     task.priority = priority;
@@ -207,7 +185,11 @@ const updateTaskPriority = async (req, res) => {
     res.json(populatedTask);
   } catch (error) {
     console.error('Update task priority error:', error);
-    res.status(500).json({ message: error.message });
+    if (!res.headersSent) {
+      res.status(500).json({
+        message: error.message || 'Internal server error',
+      });
+    }
   }
 };
 export {

@@ -9,10 +9,14 @@ const logger = winston.createLogger({
     new winston.transports.File({ filename: 'combined.log' }),
   ],
 });
+
 if (process.env.NODE_ENV !== 'production') {
   logger.add(
     new winston.transports.Console({
-      format: winston.format.simple(),
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+      ),
     })
   );
 }
@@ -31,13 +35,14 @@ const expressLogger = expressWinston.logger({
       maxFiles: 5,
     }),
   ],
-  format: winston.format.json(),
+  format: winston.format.combine(
+    winston.format.colorize(),
+    winston.format.json()
+  ),
   meta: true,
-  msg: 'HTTP {{req.method}} {{req,url}}',
-  expressWinston: {
-    requestWhitelist: ['body', 'headers', 'params'],
-    responseWhitelist: ['body', 'statusCode'],
-  },
+  msg: 'HTTP {{req.method}} {{req.url}}',
+  expressFormat: true,
+  colorize: false,
 });
 
 export { logger, expressLogger };
