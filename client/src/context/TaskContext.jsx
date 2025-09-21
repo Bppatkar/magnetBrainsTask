@@ -47,6 +47,7 @@ export const TaskProvider = ({ children }) => {
     } catch (error) {
       const message = error.response?.data?.message || 'Failed to update task';
       setError(message);
+      console.error('Update task error:', error);
       throw new Error(message);
     }
   };

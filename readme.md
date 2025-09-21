@@ -7,17 +7,22 @@
 │ │ ├── /assets
 │ │ ├── /components
 │ │ │ ├── TaskForm.jsx
+│ │ │ ├── PriorityColumn.jsx
 │ │ │ ├── TaskList.jsx
+│ │ │ ├── TaskCard.jsx
 │ │ │ ├── UserAuth.jsx
 │ │ │ ├── Navbar.js
 │ │ │ └── ConfirmationModal.jsx
 │ │ │ └── privateRoute.jsx
 │ │ ├── /pages
 │ │ │ ├── HomePage.jsx
+│ │ │ ├── ProfilePage.jsx
+│ │ │ ├── RegisterPage.jsx
 │ │ │ ├── LoginPage.jsx
 │ │ │ └── DashboardPage.jsx
 │ │ ├── /context
 │ │ │ ├── AuthContext.jsx
+│ │ │ ├── UserContext.jsx
 │ │ │ └── TaskContext.jsx
 │ │ ├── App.jsx
 │ │ ├── main.jsx

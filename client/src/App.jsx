@@ -1,15 +1,13 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import { TaskProvider } from './context/TaskContext.jsx';
+import { UserProvider } from './context/UserContext.jsx';
 import HomePage from './pages/HomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import TaskDetailPage from './pages/TaskDetailPage.jsx';
+import ProfilePage from './pages/ProfilePage.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import Navbar from './components/Navbar.jsx';
 import { useAuth } from './context/AuthContext.jsx';
@@ -31,14 +29,22 @@ const AppContent = () => {
       <Navbar />
       <main className="container mx-auto p-4">
         <Routes>
-          <Route
-            path="/"
-            element={user ? <Navigate to="/dashboard" /> : <HomePage />}
-          />
+          {/* Public routes */}
+          <Route path="/" element={<HomePage />} />
           <Route
             path="/login"
-            element={user ? <Navigate to="/dashboard" /> : <LoginPage />}
+            element={
+              user ? <Navigate to="/dashboard" replace /> : <LoginPage />
+            }
           />
+          <Route
+            path="/register"
+            element={
+              user ? <Navigate to="/dashboard" replace /> : <RegisterPage />
+            }
+          />
+
+          {/* Protected routes */}
           <Route
             path="/dashboard"
             element={
@@ -55,8 +61,17 @@ const AppContent = () => {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <ProfilePage />
+              </PrivateRoute>
+            }
+          />
+
           {/* Catch-all route */}
-          <Route path="*" element={<Navigate to="/" />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
     </div>
@@ -66,9 +81,11 @@ const AppContent = () => {
 function App() {
   return (
     <AuthProvider>
-      <TaskProvider>
-        <AppContent />
-      </TaskProvider>
+      <UserProvider>
+        <TaskProvider>
+          <AppContent />
+        </TaskProvider>
+      </UserProvider>
     </AuthProvider>
   );
 }

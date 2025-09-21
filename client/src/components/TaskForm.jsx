@@ -1,21 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useTasks } from '../context/TaskContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
-import { useNavigate } from 'react-router-dom';
-import { FaPlus, FaSave, FaTimes } from 'react-icons/fa';
+import { useUsers } from '../context/UserContext.jsx'; 
+import { FaSave, FaTimes, FaUser } from 'react-icons/fa';
 
-const TaskForm = ({ taskToEdit, setEditingTask }) => {
+const TaskForm = ({ taskToEdit, setEditingTask, onSuccess }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     dueDate: '',
     priority: 'medium',
+    assignedTo: ''
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const { addTask, updateTask } = useTasks();
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const { users, fetchUsers } = useUsers(); // Fetch all users for assignment
+
+  useEffect(() => {
+    fetchUsers(); // Fetch users when form opens
+  }, []);
 
   useEffect(() => {
     if (taskToEdit) {
@@ -24,147 +29,128 @@ const TaskForm = ({ taskToEdit, setEditingTask }) => {
         description: taskToEdit.description,
         dueDate: taskToEdit.dueDate.substring(0, 10),
         priority: taskToEdit.priority,
+        assignedTo: taskToEdit.assignedTo._id
       });
     } else {
-      resetForm();
+      setFormData(prev => ({ ...prev, assignedTo: user._id }));
     }
   }, [taskToEdit]);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const resetForm = () => {
-    setFormData({
-      title: '',
-      description: '',
-      dueDate: '',
-      priority: 'medium',
-    });
-    if (setEditingTask) {
-      setEditingTask(null);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    try {
-      const taskDataWithUser = { ...formData, assignedTo: user._id };
 
+    try {
       if (taskToEdit) {
-        await updateTask(taskToEdit._id, taskDataWithUser);
-        if (setEditingTask) {
-          setEditingTask(null);
-        }
-        navigate('/dashboard');
+        await updateTask(taskToEdit._id, formData);
+        setEditingTask(null);
       } else {
-        await addTask(taskDataWithUser);
+        await addTask(formData);
       }
-      resetForm();
+      onSuccess?.();
     } catch (error) {
-      setError(error.response?.data?.message || 'Failed to save task');
-      console.error('Failed to save task:', error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-gray-800 p-6 rounded-lg shadow-lg"
-    >
-      <h3 className="text-xl font-bold mb-4 text-white">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <h3 className="text-2xl font-bold text-white">
         {taskToEdit ? 'Edit Task' : 'Create New Task'}
       </h3>
+
       {error && (
-        <div className="bg-red-500 text-white p-2 rounded mb-4 text-center">
+        <div className="bg-red-500/20 border border-red-500/30 text-red-300 p-4 rounded-lg">
           {error}
         </div>
       )}
-      <div className="mb-4">
-        <label htmlFor="title" className="block text-gray-400 mb-2">
-          Title
-        </label>
-        <input
-          type="text"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-          required
-        />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-gray-300 mb-2">Title *</label>
+          <input
+            type="text"
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block text-gray-300 mb-2">Due Date *</label>
+          <input
+            type="date"
+            value={formData.dueDate}
+            onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+            className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            required
+          />
+        </div>
       </div>
-      <div className="mb-4">
-        <label htmlFor="description" className="block text-gray-400 mb-2">
-          Description
-        </label>
+
+      <div>
+        <label className="block text-gray-300 mb-2">Description *</label>
         <textarea
-          name="description"
           value={formData.description}
-          onChange={handleChange}
-          className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
           rows="4"
           required
-        ></textarea>
-      </div>
-      <div className="mb-4">
-        <label htmlFor="dueDate" className="block text-gray-400 mb-2">
-          Due Date
-        </label>
-        <input
-          type="date"
-          name="dueDate"
-          value={formData.dueDate}
-          onChange={handleChange}
-          className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-          required
         />
       </div>
-      <div className="mb-4">
-        <label htmlFor="priority" className="block text-gray-400 mb-2">
-          Priority
-        </label>
-        <select
-          name="priority"
-          value={formData.priority}
-          onChange={handleChange}
-          className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-        >
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-gray-300 mb-2">Priority</label>
+          <select
+            value={formData.priority}
+            onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+            className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-gray-300 mb-2">Assign To</label>
+          <select
+            value={formData.assignedTo}
+            onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
+            className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          >
+            {users.map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.username}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
-      <div className="flex space-x-2">
+
+      <div className="flex space-x-4 pt-4">
         <button
           type="submit"
-          className={`flex-1 flex items-center justify-center p-3 rounded-md font-semibold text-white transition-colors duration-200 bg-blue-600 hover:bg-blue-700 ${
-            loading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
           disabled={loading}
+          className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold py-3 px-8 rounded-lg flex items-center space-x-2 transition-all duration-300 disabled:opacity-50"
         >
-          {loading ? (
-            'Saving...'
-          ) : taskToEdit ? (
-            <>
-              <FaSave className="mr-2" /> Save Changes
-            </>
-          ) : (
-            <>
-              <FaPlus className="mr-2" /> Add Task
-            </>
-          )}
+          <FaSave />
+          <span>{loading ? 'Saving...' : (taskToEdit ? 'Update Task' : 'Create Task')}</span>
         </button>
+
         {taskToEdit && (
           <button
             type="button"
-            onClick={resetForm}
-            className="p-3 rounded-md font-semibold text-white transition-colors duration-200 bg-gray-500 hover:bg-gray-600"
+            onClick={() => setEditingTask(null)}
+            className="bg-gray-500/20 hover:bg-gray-500/30 text-white font-semibold py-3 px-6 rounded-lg flex items-center space-x-2 transition-all duration-300 border border-gray-500/30"
           >
             <FaTimes />
+            <span>Cancel</span>
           </button>
         )}
       </div>

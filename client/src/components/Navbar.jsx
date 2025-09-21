@@ -1,43 +1,80 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import { FaSignOutAlt, FaTasks, FaUser } from 'react-icons/fa';
+import { FaSignOutAlt, FaTasks, FaHome, FaUser } from 'react-icons/fa';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     logout();
-    navigate('/', { replace: true });
+    navigate('/');
   };
 
+  if (['/login', '/register'].includes(location.pathname)) {
+    return null;
+  }
+
   return (
-    <nav className="bg-gray-800 shadow-md">
+    <nav className="bg-white/10 backdrop-blur-md border-b border-white/20">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <Link
           to="/"
           className="text-white text-3xl font-bold flex items-center"
         >
-          <FaTasks className="mr-2 text-blue-500" />
-          TaskFlow
+          <FaTasks className="mr-3 text-cyan-400" />
+          <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            TaskFlow
+          </span>
         </Link>
 
-        {user && (
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center text-white bg-blue-600 px-3 py-1 rounded-full">
-              <FaUser className="mr-2" />
-              <span className="font-medium">{user.username}</span>
-            </div>
+        <div className="flex items-center space-x-4">
+          {user ? (
+            <>
+              <div className="hidden md:flex items-center space-x-6">
+                <Link
+                  to="/dashboard"
+                  className="text-gray-300 hover:text-white transition-colors flex items-center space-x-2"
+                >
+                  <FaHome />
+                  <span>Dashboard</span>
+                </Link>
+                <Link
+                  to="/profile"
+                  className="text-gray-300 hover:text-white transition-colors flex items-center space-x-2"
+                >
+                  <FaUser />
+                  <span>Profile</span>
+                </Link>
+              </div>
 
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full flex items-center transition duration-200"
-            >
-              <FaSignOutAlt className="mr-2" />
-              Logout
-            </button>
-          </div>
-        )}
+              <span className="text-gray-300 hidden md:block">
+                Welcome,{' '}
+                <span className="text-white font-semibold">
+                  {user.username}
+                </span>
+              </span>
+
+              <button
+                onClick={handleLogout}
+                className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-semibold py-2 px-4 rounded-full flex items-center space-x-2 transition-all duration-300"
+              >
+                <FaSignOutAlt />
+                <span className="hidden sm:block">Logout</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-2 px-4 rounded-full flex items-center space-x-2 transition-all duration-300"
+              >
+                <span>Login</span>
+              </Link>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   );
