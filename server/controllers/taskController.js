@@ -56,12 +56,20 @@ const getTaskById = async (req, res) => {
       .populate('createdBy', 'username email');
 
     if (!task) {
-      return res.status(404).json({ message: 'Task not found' });
+      if (!res.headersSent) {
+        return res.status(404).json({ message: 'Task not found' });
+      }
     }
-    res.json(task);
+
+    if (!res.headersSent) {
+      res.json(task);
+    }
   } catch (error) {
     console.error('Get task by ID error:', error);
-    res.status(500).json({ message: error.message });
+
+    if (!res.headersSent) {
+      res.status(500).json({ message: error.message });
+    }
   }
 };
 
@@ -109,20 +117,30 @@ const deleteTask = async (req, res) => {
     const task = await Task.findById(req.params.id);
 
     if (!task) {
-      return res.status(404).json({ message: 'Task not found' });
+      if (!res.headersSent) {
+        return res.status(404).json({ message: 'Task not found' });
+      }
     }
 
     if (task.createdBy.toString() !== req.user._id.toString()) {
-      return res
-        .status(401)
-        .json({ message: 'You can only delete tasks you created' });
+      if (!res.headersSent) {
+        return res
+          .status(401)
+          .json({ message: 'You can only delete tasks you created' });
+      }
     }
 
     await Task.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Task deleted successfully' });
+
+    if (!res.headersSent) {
+      res.json({ message: 'Task deleted successfully' });
+    }
   } catch (error) {
     console.error('Delete task error:', error);
-    res.status(500).json({ message: error.message });
+
+    if (!res.headersSent) {
+      res.status(500).json({ message: error.message });
+    }
   }
 };
 

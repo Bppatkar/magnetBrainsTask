@@ -22,27 +22,18 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const expressLogger = expressWinston.logger({
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        winston.format.simple()
-      ),
-    }),
-    new winston.transports.File({
-      filename: 'requests.log',
-      maxsize: 5242880,
-      maxFiles: 5,
-    }),
-  ],
+  transports: [new winston.transports.Console()],
   format: winston.format.combine(
     winston.format.colorize(),
-    winston.format.json()
+    winston.format.simple()
   ),
-  meta: true,
-  msg: 'HTTP {{req.method}} {{req.url}}',
-  expressFormat: true,
-  colorize: false,
+  meta: false,
+  msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
+  colorize: true,
+  ignoreRoute: (req, res) => {
+    // Don't log sensitive routes or health checks
+    return req.url.includes('/api/auth') || req.url === '/api/health';
+  },
 });
 
 export { logger, expressLogger };

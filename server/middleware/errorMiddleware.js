@@ -2,6 +2,7 @@ const errorHandler = (err, req, res, next) => {
   console.error('Error stack:', err.stack);
 
   if (res.headersSent) {
+    console.log('Headers already sent, skipping error response');
     return next(err);
   }
 
