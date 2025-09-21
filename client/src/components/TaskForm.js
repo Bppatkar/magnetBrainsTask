@@ -1,17 +1,22 @@
 import { useState, useEffect } from 'react';
-import api from '../api/api';
+import { useTasks } from '../context/TaskContext.js';
+import { useAuth } from '../context/AuthContext.js';
+import { useNavigate } from 'react-router-dom';
 import { FaPlus, FaSave, FaTimes } from 'react-icons/fa';
 
-const TaskForm = ({ onTaskCreated, onTaskUpdated, taskToEdit, setEditingTask }) => {
+const TaskForm = ({ taskToEdit, setEditingTask }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     dueDate: '',
     priority: 'medium',
-    assignedTo: '' 
   });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { addTask, updateTask } = useTasks();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-  // Populate form if a task is being edited
   useEffect(() => {
     if (taskToEdit) {
       setFormData({
@@ -19,7 +24,6 @@ const TaskForm = ({ onTaskCreated, onTaskUpdated, taskToEdit, setEditingTask }) 
         description: taskToEdit.description,
         dueDate: taskToEdit.dueDate.substring(0, 10),
         priority: taskToEdit.priority,
-        assignedTo: taskToEdit.assignedTo,
       });
     } else {
       resetForm();
@@ -36,34 +40,43 @@ const TaskForm = ({ onTaskCreated, onTaskUpdated, taskToEdit, setEditingTask }) 
       description: '',
       dueDate: '',
       priority: 'medium',
-      assignedTo: '',
     });
     setEditingTask(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(e);
+    setLoading(true);
     try {
+      const taskDataWithUser = { ...formData, assignedTo: user._id };
+
       if (taskToEdit) {
-        await api.put(`/tasks/${taskToEdit._id}`, formData);
-        onTaskUpdated();
+        await updateTask(taskToEdit._id, taskDataWithUser);
+        navigate('/dashboard');
       } else {
-        // You'll need to fetch the current user's ID from context to set assignedTo
-        // For now, let's assume you've hardcoded it or fetched it
-        // and add it to the formData before submitting.
-        const res = await api.post('/tasks', { ...formData, assignedTo: "Your_User_ID_Here" });
-        onTaskCreated();
+        await addTask(taskDataWithUser);
       }
       resetForm();
     } catch (error) {
-      console.error("Failed to save task:", error);
+      console.error('Failed to save task:', error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg shadow-lg">
+    <form onSubmit={handleSubmit} className="bg-card p-6 rounded-lg shadow-lg">
+      <h3 className="text-xl font-bold mb-4">
+        {taskToEdit ? 'Edit Task' : 'Create New Task'}
+      </h3>
+      {error && (
+        <div className="bg-red-500 text-white p-2 rounded mb-4 text-center">
+          {error}
+        </div>
+      )}
       <div className="mb-4">
-        <label htmlFor="title" className="block text-gray-400 mb-2">Title</label>
+        <label htmlFor="title" className="block text-gray-400 mb-2">
+          Title
+        </label>
         <input
           type="text"
           name="title"
@@ -74,7 +87,9 @@ const TaskForm = ({ onTaskCreated, onTaskUpdated, taskToEdit, setEditingTask }) 
         />
       </div>
       <div className="mb-4">
-        <label htmlFor="description" className="block text-gray-400 mb-2">Description</label>
+        <label htmlFor="description" className="block text-gray-400 mb-2">
+          Description
+        </label>
         <textarea
           name="description"
           value={formData.description}
@@ -85,7 +100,9 @@ const TaskForm = ({ onTaskCreated, onTaskUpdated, taskToEdit, setEditingTask }) 
         ></textarea>
       </div>
       <div className="mb-4">
-        <label htmlFor="dueDate" className="block text-gray-400 mb-2">Due Date</label>
+        <label htmlFor="dueDate" className="block text-gray-400 mb-2">
+          Due Date
+        </label>
         <input
           type="date"
           name="dueDate"
@@ -96,7 +113,9 @@ const TaskForm = ({ onTaskCreated, onTaskUpdated, taskToEdit, setEditingTask }) 
         />
       </div>
       <div className="mb-4">
-        <label htmlFor="priority" className="block text-gray-400 mb-2">Priority</label>
+        <label htmlFor="priority" className="block text-gray-400 mb-2">
+          Priority
+        </label>
         <select
           name="priority"
           value={formData.priority}
@@ -111,9 +130,22 @@ const TaskForm = ({ onTaskCreated, onTaskUpdated, taskToEdit, setEditingTask }) 
       <div className="flex space-x-2">
         <button
           type="submit"
-          className="flex-1 flex items-center justify-center p-3 rounded-md font-semibold text-white transition-colors duration-200 bg-blue-600 hover:bg-blue-700"
+          className={`flex-1 flex items-center justify-center p-3 rounded-md font-semibold text-white transition-colors duration-200 bg-blue-600 hover:bg-blue-700 ${
+            loading ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+          disabled={loading}
         >
-          {taskToEdit ? <><FaSave className="mr-2" /> Save Changes</> : <><FaPlus className="mr-2" /> Add Task</>}
+          {loading ? (
+            'Saving...'
+          ) : taskToEdit ? (
+            <>
+              <FaSave className="mr-2" /> Save Changes
+            </>
+          ) : (
+            <>
+              <FaPlus className="mr-2" /> Add Task
+            </>
+          )}
         </button>
         {taskToEdit && (
           <button
