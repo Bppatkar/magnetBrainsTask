@@ -1,18 +1,23 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import TaskList from '../components/TaskList.jsx';
 import TaskForm from '../components/TaskForm.jsx';
-import { useAuth } from '../hooks/useAuth.jsx';
-import { useTasks } from '../context/TaskProvider.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
+import { useTasks } from '../hooks/useTasks.jsx';
 
 const DashboardPage = () => {
   const { user } = useAuth();
   const { tasks, loading, error, fetchTasks } = useTasks();
+  const [editingTask, setEditingTask] = useState(null);
 
   useEffect(() => {
     if (user) {
       fetchTasks();
     }
   }, [user, fetchTasks]);
+
+  const handleEditTask = (task) => {
+    setEditingTask(task);
+  };
 
   if (loading) {
     return (
@@ -27,11 +32,11 @@ const DashboardPage = () => {
   return (
     <div className="flex flex-col lg:flex-row gap-8 mt-8">
       <div className="lg:w-1/3">
-        <TaskForm />
+        <TaskForm taskToEdit={editingTask} setEditingTask={setEditingTask} />
       </div>
       <div className="lg:w-2/3">
-        <h2 className="text-3xl font-bold mb-4">Your Tasks</h2>
-        <TaskList tasks={tasks} />
+        <h2 className="text-3xl font-bold mb-4 text-white">Your Tasks</h2>
+        <TaskList tasks={tasks} onEditTask={handleEditTask} />
       </div>
     </div>
   );

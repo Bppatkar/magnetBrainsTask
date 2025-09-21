@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useTasks } from '../context/TaskProvider.jsx';
-import { useAuth } from '../context/AuthProvider.jsx';
+import { useTasks } from '../hooks/useTasks.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import { FaPlus, FaSave, FaTimes } from 'react-icons/fa';
 
@@ -41,31 +41,39 @@ const TaskForm = ({ taskToEdit, setEditingTask }) => {
       dueDate: '',
       priority: 'medium',
     });
-    setEditingTask(null);
+    if (setEditingTask) {
+      setEditingTask(null);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(e);
+    setError(null); // Fixed: was setError(e)
     setLoading(true);
     try {
       const taskDataWithUser = { ...formData, assignedTo: user._id };
 
       if (taskToEdit) {
         await updateTask(taskToEdit._id, taskDataWithUser);
+        if (setEditingTask) {
+          setEditingTask(null);
+        }
         navigate('/dashboard');
       } else {
         await addTask(taskDataWithUser);
       }
       resetForm();
     } catch (error) {
+      setError(error.response?.data?.message || 'Failed to save task');
       console.error('Failed to save task:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-card p-6 rounded-lg shadow-lg">
-      <h3 className="text-xl font-bold mb-4">
+    <form onSubmit={handleSubmit} className="bg-gray-800 p-6 rounded-lg shadow-lg">
+      <h3 className="text-xl font-bold mb-4 text-white">
         {taskToEdit ? 'Edit Task' : 'Create New Task'}
       </h3>
       {error && (
@@ -82,7 +90,7 @@ const TaskForm = ({ taskToEdit, setEditingTask }) => {
           name="title"
           value={formData.title}
           onChange={handleChange}
-          className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
           required
         />
       </div>
@@ -94,7 +102,7 @@ const TaskForm = ({ taskToEdit, setEditingTask }) => {
           name="description"
           value={formData.description}
           onChange={handleChange}
-          className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
           rows="4"
           required
         ></textarea>
@@ -108,7 +116,7 @@ const TaskForm = ({ taskToEdit, setEditingTask }) => {
           name="dueDate"
           value={formData.dueDate}
           onChange={handleChange}
-          className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
           required
         />
       </div>
@@ -120,7 +128,7 @@ const TaskForm = ({ taskToEdit, setEditingTask }) => {
           name="priority"
           value={formData.priority}
           onChange={handleChange}
-          className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-2 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
         >
           <option value="low">Low</option>
           <option value="medium">Medium</option>

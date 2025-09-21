@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../context/AuthProvider.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import { FaUserPlus, FaSignInAlt } from 'react-icons/fa';
 
@@ -26,6 +26,7 @@ const UserAuth = () => {
       navigate('/dashboard');
     } catch (error) {
       console.error(error.message);
+      setError(error.response?.data?.message || 'Authentication failed');
     } finally {
       setLoading(false);
     }

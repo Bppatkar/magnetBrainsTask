@@ -33,13 +33,13 @@ const TaskDetailPage = () => {
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'high':
-        return 'bg-high-priority';
+        return 'text-red-500';
       case 'medium':
-        return 'bg-medium-priority';
+        return 'text-yellow-500';
       case 'low':
-        return 'bg-low-priority';
+        return 'text-green-500';
       default:
-        return 'bg-gray-700';
+        return 'text-gray-500';
     }
   };
 
@@ -49,7 +49,7 @@ const TaskDetailPage = () => {
 
   return (
     <div className="container mx-auto mt-8 p-4">
-      <div className="bg-card p-8 rounded-lg shadow-lg">
+      <div className="bg-gray-800 p-8 rounded-lg shadow-lg">
         <div className="flex justify-between items-center mb-6">
           <button onClick={() => navigate(-1)} className="text-gray-400 hover:text-white transition duration-200 flex items-center space-x-2">
             <FaArrowLeft />
@@ -65,12 +65,12 @@ const TaskDetailPage = () => {
           <TaskForm taskToEdit={task} setEditingTask={handleEditComplete} />
         ) : (
           <div>
-            <h1 className="text-4xl font-bold mb-2">{task.title}</h1>
+            <h1 className="text-4xl font-bold mb-2 text-white">{task.title}</h1>
             <p className="text-gray-300 mb-6">{task.description}</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="flex items-center space-x-3 text-gray-300">
-                <FaTag className={`text-xl ${getPriorityColor(task.priority)} rounded-full p-1`} />
+                <FaTag className={`text-xl ${getPriorityColor(task.priority)}`} />
                 <div>
                   <span className="font-semibold text-white">Priority:</span>
                   <p className="capitalize">{task.priority}</p>

@@ -20,7 +20,6 @@
 │ │ │ ├── AuthContext.jsx
 │ │ │ └── TaskContext.jsx
 │ │ ├── /hooks
-│ │ │ └── useAuth.jsx
 │ │ │ └── useTasks.jsx
 │ │ ├── App.jsx
 │ │ ├── main.jsx

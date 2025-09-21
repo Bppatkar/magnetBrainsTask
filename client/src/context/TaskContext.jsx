@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { TaskContext } from './TaskContext.js';
+import { createContext, useContext, useState } from 'react';
 import api from '../api/api.js';
+
+export const TaskContext = createContext();
 
 export const TaskProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
@@ -67,3 +68,4 @@ export const TaskProvider = ({ children }) => {
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
 };
+export const useTasks = () => useContext(TaskContext);

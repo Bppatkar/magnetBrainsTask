@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import ConfirmationModal from './ConfirmationModal.jsx';
 import {
   FaTrash,
@@ -6,7 +7,7 @@ import {
   FaCheckCircle,
   FaHourglassHalf,
 } from 'react-icons/fa';
-import { useTasks } from '../context/TaskProvider.jsx';
+import { useTasks } from '../hooks/useTasks.jsx';
 
 const TaskList = ({ tasks, onEditTask }) => {
   const [showModal, setShowModal] = useState(false);
@@ -16,11 +17,11 @@ const TaskList = ({ tasks, onEditTask }) => {
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'high':
-        return 'border-l-4 border-high-priority';
+        return 'border-l-4 border-red-500';
       case 'medium':
-        return 'border-l-4 border-medium-priority';
+        return 'border-l-4 border-yellow-500';
       case 'low':
-        return 'border-l-4 border-low-priority';
+        return 'border-l-4 border-green-500';
       default:
         return 'border-l-4 border-gray-700';
     }
@@ -43,6 +44,7 @@ const TaskList = ({ tasks, onEditTask }) => {
     const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
     await updateTask(taskId, { status: newStatus });
   };
+
   if (tasks.length === 0) {
     return (
       <p className="text-gray-400 mt-4 text-center">
@@ -56,7 +58,7 @@ const TaskList = ({ tasks, onEditTask }) => {
       {tasks.map((task) => (
         <div
           key={task._id}
-          className={`flex flex-col md:flex-row items-start md:items-center justify-between p-4 mb-4 rounded-lg shadow-md bg-card ${getPriorityColor(
+          className={`flex flex-col md:flex-row items-start md:items-center justify-between p-4 mb-4 rounded-lg shadow-md bg-gray-800 ${getPriorityColor(
             task.priority
           )}`}
         >

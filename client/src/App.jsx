@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import AuthProvider from './context/AuthProvider.jsx';
-import TaskProvider from './context/TaskProvider.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
+import { TaskProvider } from './context/TaskContext.jsx';
 import HomePage from './pages/HomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';

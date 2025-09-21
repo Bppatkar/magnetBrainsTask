@@ -3,7 +3,7 @@ dotenv.config();
 
 import express from 'express';
 import cors from 'cors';
-import helemt from 'helmet';
+import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { logger, expressLogger } from './utils/logger.js';
 import connectDB from './config/db.js';
@@ -16,7 +16,7 @@ const app = express();
 connectDB();
 
 app.use(express.json());
-app.use(helemt());
+app.use(helmet());
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
