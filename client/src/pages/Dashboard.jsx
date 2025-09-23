@@ -41,7 +41,7 @@ const Dashboard = () => {
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
-      // console.log('Error details:', error.response);
+      console.log('Error details:', error.response);
       // Fallback: at least show current user
       setUsers([
         {

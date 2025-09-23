@@ -1,7 +1,14 @@
 import { FiEdit, FiTrash2, FiClock, FiUser } from 'react-icons/fi';
 import { TASK_PRIORITIES, TASK_STATUS } from '../utils/constants';
 
-const TaskCard = ({ task, onEdit, onDelete, onStatusUpdate, onPriorityUpdate, user }) => {
+const TaskCard = ({
+  task,
+  onEdit,
+  onDelete,
+  onStatusUpdate,
+  onPriorityUpdate,
+  user,
+}) => {
   const isCreator = task.createdBy._id === user?._id;
   const isAssigned = task.assignedTo._id === user?._id;
   const isAdmin = user?.role === 'admin';
@@ -13,19 +20,27 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusUpdate, onPriorityUpdate, us
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'high':
+        return 'bg-red-100 text-red-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'low':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'in-progress': return 'bg-blue-100 text-blue-800';
-      case 'pending': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'in-progress':
+        return 'bg-blue-100 text-blue-800';
+      case 'pending':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -35,12 +50,18 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusUpdate, onPriorityUpdate, us
         <h3 className="text-lg font-semibold text-gray-900">{task.title}</h3>
         <div className="flex space-x-2">
           {canEdit && (
-            <button onClick={() => onEdit(task)} className="text-blue-600 hover:text-blue-800">
+            <button
+              onClick={() => onEdit(task)}
+              className="text-blue-600 hover:text-blue-800"
+            >
               <FiEdit className="w-4 h-4" />
             </button>
           )}
           {canDelete && (
-            <button onClick={() => onDelete(task._id)} className="text-red-600 hover:text-red-800">
+            <button
+              onClick={() => onDelete(task._id)}
+              className="text-red-600 hover:text-red-800"
+            >
               <FiTrash2 className="w-4 h-4" />
             </button>
           )}
@@ -55,15 +76,19 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusUpdate, onPriorityUpdate, us
             <FiClock className="mr-2" />
             Due: {new Date(task.dueDate).toLocaleDateString()}
           </span>
-          
+
           {canUpdateStatus && (
-            <select 
+            <select
               value={task.status}
               onChange={(e) => onStatusUpdate(task._id, e.target.value)}
-              className={`text-xs px-2 py-1 rounded-full ${getStatusColor(task.status)}`}
+              className={`text-xs px-2 py-1 rounded-full ${getStatusColor(
+                task.status
+              )}`}
             >
               {Object.entries(TASK_STATUS).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
+                <option key={key} value={key}>
+                  {label}
+                </option>
               ))}
             </select>
           )}
@@ -74,15 +99,19 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusUpdate, onPriorityUpdate, us
             <FiUser className="mr-2" />
             Assigned to: {task.assignedTo.username}
           </span>
-          
+
           {canUpdatePriority && (
-            <select 
+            <select
               value={task.priority}
               onChange={(e) => onPriorityUpdate(task._id, e.target.value)}
-              className={`text-xs px-2 py-1 rounded-full ${getPriorityColor(task.priority)}`}
+              className={`text-xs px-2 py-1 rounded-full ${getPriorityColor(
+                task.priority
+              )}`}
             >
               {Object.entries(TASK_PRIORITIES).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
+                <option key={key} value={key}>
+                  {label}
+                </option>
               ))}
             </select>
           )}

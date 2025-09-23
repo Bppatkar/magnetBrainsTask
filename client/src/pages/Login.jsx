@@ -14,7 +14,7 @@ const Login = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setCredentials(prev => ({ ...prev, [name]: value }));
+    setCredentials((prev) => ({ ...prev, [name]: value }));
     if (error) setError('');
   };
 
@@ -38,7 +38,9 @@ const Login = () => {
       <div className="min-h-screen flex items-center justify-center py-12">
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900">Sign in to your account</h2>
+            <h2 className="text-3xl font-bold text-gray-900">
+              Sign in to your account
+            </h2>
             <p className="mt-2 text-gray-600">Manage your tasks efficiently</p>
           </div>
 
@@ -69,14 +71,22 @@ const Login = () => {
               placeholder="Enter your password"
             />
 
-            <Button type="submit" variant="primary" className="w-full" disabled={loading}>
+            <Button
+              type="submit"
+              variant="primary"
+              className="w-full"
+              disabled={loading}
+            >
               {loading ? 'Signing in...' : 'Sign in'}
             </Button>
 
             <div className="text-center">
               <p className="text-gray-600">
                 Don't have an account?{' '}
-                <Link to="/register" className="text-blue-600 hover:text-blue-500">
+                <Link
+                  to="/register"
+                  className="text-blue-600 hover:text-blue-500"
+                >
                   Sign up
                 </Link>
               </p>
