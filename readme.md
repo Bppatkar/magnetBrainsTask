@@ -1,4 +1,4 @@
-# Task Management System
+# TaskFlow
 
 A comprehensive task management application built with React.js frontend and Node.js backend, featuring user authentication, task CRUD operations, priority management, and modern UI components.
 
