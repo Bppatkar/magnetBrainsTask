@@ -3,7 +3,9 @@ import asyncHandler from 'express-async-handler';
 
 const getUsers = asyncHandler(async (req, res) => {
   try {
+    // console.log('Getting users for user:', req.user);
     const users = await User.find({}).select('-password');
+    // console.log('Found users:', users.length);
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -68,4 +70,5 @@ const deleteUser = asyncHandler(async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
 export { getUsers, getUserById, updateUser, deleteUser };

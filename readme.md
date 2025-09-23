@@ -1,8 +1,8 @@
-<<<<<<< HEAD
 # TaskFlow
+
 =======
-# TaskFlow <img width="154" height="40" alt="image" src="https://github.com/user-attachments/assets/26c282a6-18fb-4a63-afff-a8d3ff02792d" /> 
->>>>>>> 2d07bd1a966a0259357666c2fad0403db28994fd
+
+# TaskFlow <img width="154" height="40" alt="image" src="https://github.com/user-attachments/assets/26c282a6-18fb-4a63-afff-a8d3ff02792d" />
 
 A comprehensive task management application built with React.js frontend and Node.js backend, featuring user authentication, task CRUD operations, priority management, and modern UI components.
 
@@ -34,7 +34,7 @@ A comprehensive task management application built with React.js frontend and Nod
 - **React Router** - Navigation
 - **Context API** - State management
 - **Axios** - HTTP client
-- **CSS3** - Styling
+- **Tailwind** - Styling
 
 ### Backend
 

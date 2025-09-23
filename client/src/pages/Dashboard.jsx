@@ -35,24 +35,14 @@ const Dashboard = () => {
 
   const fetchUsers = async () => {
     try {
-      if (user?.role === 'admin') {
-        // Admin can see all users
-        const response = await usersAPI.getUsers();
-        setUsers(response.data);
-      } else {
-        // Regular users should see at least themselves for assignment
-        // For now, we'll create a mock user array with just the current user
-        setUsers([
-          {
-            _id: user._id,
-            username: user.username,
-            email: user.email,
-          },
-        ]);
-      }
+      // console.log('Fetching users...');
+      const response = await usersAPI.getUsers();
+      // console.log('Users API response:', response.data);
+      setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
-      // Fallback: create array with current user
+      // console.log('Error details:', error.response);
+      // Fallback: at least show current user
       setUsers([
         {
           _id: user._id,

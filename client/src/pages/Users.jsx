@@ -53,7 +53,7 @@ const Users = () => {
 
   const handleToggleStatus = async (userId, currentStatus) => {
     try {
-      await usersAPI.updateUserStatus(userId, !currentStatus);
+      await usersAPI.updateUser(userId, { isActive: !currentStatus });
       fetchUsers();
     } catch (error) {
       console.error('Error updating user status:', error);
