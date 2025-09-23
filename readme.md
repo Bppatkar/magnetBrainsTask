@@ -2,6 +2,16 @@
 
 A comprehensive task management application built with React.js frontend and Node.js backend, featuring user authentication, task CRUD operations, priority management, and modern UI components.
 
+
+<img width="928" height="693" alt="image" src="https://github.com/user-attachments/assets/159ebefe-4329-463e-b302-cb19958147d1" />
+<img width="1600" height="917" alt="image" src="https://github.com/user-attachments/assets/0bfe8f25-333b-4fb0-89d0-4cdec87a7a85" />
+<img width="490" height="626" alt="image" src="https://github.com/user-attachments/assets/df47c932-d887-47c7-84c5-dcd9ca3f0414" />
+<img width="535" height="464" alt="image" src="https://github.com/user-attachments/assets/5756c5df-ad29-4b40-8e44-d107c3db970b" />
+<img width="1677" height="742" alt="image" src="https://github.com/user-attachments/assets/4ae68148-b8a9-4fb7-9e1a-cd60f3d03cfa" />
+<img width="453" height="382" alt="image" src="https://github.com/user-attachments/assets/57868a16-a24f-4f32-854c-99944e9c3fe0" />
+<img width="509" height="247" alt="image" src="https://github.com/user-attachments/assets/1af723aa-ff5d-41cc-a4ea-6b04fa1470f2" />
+<img width="486" height="245" alt="image" src="https://github.com/user-attachments/assets/00a863e0-225f-4bcd-abbf-d456cc00e6c7" />
+
 ## 🚀 Features
 
 ### Core Functionality
