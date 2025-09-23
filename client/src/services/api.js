@@ -14,6 +14,18 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Response interceptor to handle errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Auth API
 export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
@@ -30,6 +42,15 @@ export const tasksAPI = {
   deleteTask: (id) => api.delete(`/tasks/${id}`),
   updateTaskStatus: (id, status) => api.patch(`/tasks/${id}/status`, { status }),
   updateTaskPriority: (id, priority) => api.patch(`/tasks/${id}/priority`, { priority }),
+};
+
+// Users API (for admin)
+export const usersAPI = {
+  getUsers: () => api.get('/users'),
+  getUserById: (id) => api.get(`/users/${id}`),
+  updateUser: (id, userData) => api.put(`/users/${id}`, userData),
+  deleteUser: (id) => api.delete(`/users/${id}`),
+  updateUserStatus: (id, isActive) => api.patch(`/users/${id}/status`, { isActive }),
 };
 
 export default api;

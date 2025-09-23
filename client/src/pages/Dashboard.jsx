@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { tasksAPI } from '../services/api';
+import { tasksAPI, usersAPI } from '../services/api';
 import Layout from '../components/Layout';
 import TaskList from '../components/TaskList';
 import TaskForm from '../components/TaskForm';
 import Button from '../components/ui/Button';
 import Modal from '../components/ui/Modal';
-import { FiPlus, FiFilter } from 'react-icons/fi';
+import { FiPlus } from 'react-icons/fi';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -36,18 +36,12 @@ const Dashboard = () => {
   };
 
   const fetchUsers = async () => {
-    // You'll need to implement a users API endpoint
-    // For now, this is a placeholder
-
-    // try {
-    //   const response = await tasksAPI.getUsers(); //? Make sure getUsers exists in your API service
-    //   setUsers(response.data);
-    // } catch (error) {
-    //   console.error('Error fetching users:', error);
-    //   setUsers([]);
-    // }
-
-    setUsers([]);
+    try {
+      const response = await usersAPI.getUsers();
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
   };
 
   const handleCreateTask = async (taskData) => {
@@ -57,6 +51,7 @@ const Dashboard = () => {
       fetchTasks();
     } catch (error) {
       console.error('Error creating task:', error);
+      alert(error.response?.data?.message || 'Error creating task');
     }
   };
 
@@ -68,6 +63,7 @@ const Dashboard = () => {
       fetchTasks();
     } catch (error) {
       console.error('Error updating task:', error);
+      alert(error.response?.data?.message || 'Error updating task');
     }
   };
 
@@ -78,6 +74,7 @@ const Dashboard = () => {
         fetchTasks();
       } catch (error) {
         console.error('Error deleting task:', error);
+        alert(error.response?.data?.message || 'Error deleting task');
       }
     }
   };
@@ -88,6 +85,7 @@ const Dashboard = () => {
       fetchTasks();
     } catch (error) {
       console.error('Error updating status:', error);
+      alert(error.response?.data?.message || 'Error updating status');
     }
   };
 
@@ -97,10 +95,11 @@ const Dashboard = () => {
       fetchTasks();
     } catch (error) {
       console.error('Error updating priority:', error);
+      alert(error.response?.data?.message || 'Error updating priority');
     }
   };
 
-  const filteredTasks = tasks.filter((task) => {
+  const filteredTasks = tasks.filter(task => {
     if (filter === 'all') return true;
     if (filter === 'assigned') return task.assignedTo._id === user._id;
     if (filter === 'created') return task.createdBy._id === user._id;
@@ -116,7 +115,7 @@ const Dashboard = () => {
             <h1 className="text-3xl font-bold text-gray-900">Task Dashboard</h1>
             <p className="text-gray-600">Manage your tasks efficiently</p>
           </div>
-          <Button
+          <Button 
             onClick={() => setShowModal(true)}
             variant="primary"
             className="flex items-center space-x-2"
@@ -131,8 +130,8 @@ const Dashboard = () => {
           <button
             onClick={() => setFilter('all')}
             className={`px-4 py-2 rounded-lg ${
-              filter === 'all'
-                ? 'bg-blue-600 text-white'
+              filter === 'all' 
+                ? 'bg-blue-600 text-white' 
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
@@ -141,8 +140,8 @@ const Dashboard = () => {
           <button
             onClick={() => setFilter('assigned')}
             className={`px-4 py-2 rounded-lg ${
-              filter === 'assigned'
-                ? 'bg-blue-600 text-white'
+              filter === 'assigned' 
+                ? 'bg-blue-600 text-white' 
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
@@ -151,8 +150,8 @@ const Dashboard = () => {
           <button
             onClick={() => setFilter('created')}
             className={`px-4 py-2 rounded-lg ${
-              filter === 'created'
-                ? 'bg-blue-600 text-white'
+              filter === 'created' 
+                ? 'bg-blue-600 text-white' 
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
