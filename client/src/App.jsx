@@ -1,62 +1,35 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext.jsx';
-import { TaskProvider } from './context/TaskContext.jsx';
-import LoginPage from './pages/LoginPage.jsx';
-import RegisterPage from './pages/RegisterPage.jsx';
-import DashboardPage from './pages/DashboardPage.jsx';
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
 
-const PrivateRoute = ({ children }) => {
-  const { currentUser, loading } = useAuth();
-  if (loading) return null; // Or a loading spinner
-  return currentUser ? children : <Navigate to="/login" />;
-};
+function App() {
+  const [count, setCount] = useState(0)
 
-const AuthRoutes = ({ children }) => {
-  const { currentUser, loading } = useAuth();
-  if (loading) return null;
-  return currentUser ? <Navigate to="/dashboard" /> : children;
-};
-
-const AppContent = () => {
   return (
-    <Routes>
-      <Route
-        path="/login"
-        element={
-          <AuthRoutes>
-            <LoginPage />
-          </AuthRoutes>
-        }
-      />
-      <Route
-        path="/register"
-        element={
-          <AuthRoutes>
-            <RegisterPage />
-          </AuthRoutes>
-        }
-      />
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <DashboardPage />
-          </PrivateRoute>
-        }
-      />
-      <Route path="*" element={<Navigate to="/dashboard" />} />
-    </Routes>
-  );
-};
+    <>
+      <div>
+        <a href="https://vite.dev" target="_blank">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        <a href="https://react.dev" target="_blank">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
+      </div>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => setCount((count) => count + 1)}>
+          count is {count}
+        </button>
+        <p>
+          Edit <code>src/App.jsx</code> and save to test HMR
+        </p>
+      </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
+    </>
+  )
+}
 
-const App = () => {
-  return (
-    <AuthProvider>
-      <TaskProvider>
-        <AppContent />
-      </TaskProvider>
-    </AuthProvider>
-  );
-};
-
-export default App;
+export default App

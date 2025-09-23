@@ -2,32 +2,29 @@
 ├── /client
 │ ├── /public
 │ ├── /src
-│ │ ├── /api
-│ │ │ ├── api.js
-│ │ ├── /assets
-│ │ ├── /components
-│ │ │ ├── TaskForm.jsx
-│ │ │ ├── PriorityColumn.jsx
-│ │ │ ├── TaskList.jsx
-│ │ │ ├── TaskCard.jsx
-│ │ │ ├── UserAuth.jsx
-│ │ │ ├── Navbar.js
-│ │ │ └── ConfirmationModal.jsx
-│ │ │ └── privateRoute.jsx
-│ │ ├── /pages
-│ │ │ ├── HomePage.jsx
-│ │ │ ├── ProfilePage.jsx
-│ │ │ ├── RegisterPage.jsx
-│ │ │ ├── LoginPage.jsx
-│ │ │ └── DashboardPage.jsx
-│ │ ├── /context
-│ │ │ ├── AuthContext.jsx
-│ │ │ ├── UserContext.jsx
-│ │ │ └── TaskContext.jsx
+├── components/
+│ ├── ui/ # shadcnUI components
+│ ├── Layout.jsx # Main layout
+│ ├── Navbar.jsx # Navigation
+│ ├── TaskForm.jsx # Create/Edit task form
+│ ├── TaskList.jsx # Task listing
+│ └── TaskCard.jsx # Individual task card
+├── pages/
+│ ├── Login.jsx # Login page
+│ ├── Register.jsx # Register page
+│ ├── Dashboard.jsx # Main dashboard
+│ └── Profile.jsx # User profile
+├── services/
+│ └── api.js # API calls
+├── context/
+│ └── AuthContext.jsx # Authentication context
+├── hooks/
+│ └── useAuth.js # Authentication hook
+└── utils/
+└── constants.js # Constants
 │ │ ├── App.jsx
 │ │ ├── main.jsx
-│ │ ├── tailwind.config.js
-│ │ └── styles.css
+│ │ └── app.css
 ├── /server
 │ ├── /config
 │ │ └── db.js

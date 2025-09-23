@@ -14,13 +14,15 @@ const router = express.Router();
 
 router.route('/').post(isValid, createTask).get(isValid, getTasks);
 
+router.patch('/:id/status', isValid, updateTaskStatus);
+router.patch('/:id/priority', isValid, updateTaskPriority);
+
 router
   .route('/:id')
   .get(isValid, getTaskById)
   .put(isValid, updateTask)
   .delete(isValid, deleteTask);
 
-router.patch('/:id/status', isValid, updateTaskStatus);
-router.patch('/:id/priority', isValid, updateTaskPriority);
-
 export default router;
+
+

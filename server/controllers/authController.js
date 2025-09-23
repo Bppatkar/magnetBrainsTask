@@ -10,22 +10,39 @@ const generateToken = (id) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, role } = req.body;
 
+  // Basic validation
   if (!username || !email || !password) {
     res.status(400);
-    throw new Error('Please add all fields');
+    throw new Error(
+      'Please add all required fields: username, email, password'
+    );
   }
+
   try {
-    const userExists = await User.findOne({ email });
+    // Check if user exists
+    const userExists = await User.findOne({
+      $or: [{ email }, { username }],
+    });
 
     if (userExists) {
-      if (!res.headersSent) {
-        return res.status(400).json({ message: 'User already exists' });
-      }
+      return res.status(400).json({
+        message: 'User with this email or username already exists',
+      });
     }
 
-    const user = await User.create({ username, email, password });
+    // Determine role (default to 'user' if not provided or invalid)
+    const validRole = role && ['user', 'admin'].includes(role) ? role : 'user';
+
+    // Create user with default isActive: true
+    const user = await User.create({
+      username,
+      email,
+      password,
+      role: validRole,
+      // isActive will default to true from the schema
+    });
 
     if (user) {
       res.status(201).json({
@@ -33,6 +50,7 @@ const registerUser = asyncHandler(async (req, res) => {
         username: user.username,
         email: user.email,
         role: user.role,
+        isActive: user.isActive,
         token: generateToken(user._id),
       });
     } else {
@@ -50,15 +68,27 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
+  // Basic validation
+  if (!email || !password) {
+    res.status(400);
+    throw new Error('Please provide email and password');
+  }
+
   try {
     const user = await User.findOne({ email });
 
+    // Check if user exists and is active
     if (user && (await user.matchPassword(password))) {
+      if (!user.isActive) {
+        return res.status(401).json({ message: 'Account is deactivated' });
+      }
+
       res.json({
         _id: user._id,
         username: user.username,
         email: user.email,
         role: user.role,
+        isActive: user.isActive,
         token: generateToken(user._id),
       });
     } else {
@@ -74,12 +104,12 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const getUserProfile = async (req, res) => {
-  // `req.user` is populated by the `isValid` middleware
   const user = {
     _id: req.user._id,
     username: req.user.username,
     email: req.user.email,
     role: req.user.role,
+    isActive: req.user.isActive,
   };
   res.json(user);
 };

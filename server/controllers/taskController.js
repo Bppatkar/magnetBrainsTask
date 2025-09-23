@@ -39,9 +39,15 @@ const createTask = asyncHandler(async (req, res) => {
 
 const getTasks = asyncHandler(async (req, res) => {
   try {
-    const tasks = await Task.find({
-      $or: [{ assignedTo: req.user._id }, { createdBy: req.user._id }],
-    })
+    // If user is admin, get ALL tasks
+    let query = {};
+    if (req.user.role !== 'admin') {
+      query = {
+        $or: [{ assignedTo: req.user._id }, { createdBy: req.user._id }],
+      };
+    }
+
+    const tasks = await Task.find(query)
       .populate('assignedTo', 'username email')
       .populate('createdBy', 'username email')
       .sort({ createdAt: -1 });
@@ -69,12 +75,17 @@ const getTaskById = asyncHandler(async (req, res) => {
       }
     }
     // Check if the user is authorized to view this task
-    if (
-      task.assignedTo.toString() !== req.user._id.toString() &&
-      task.createdBy.toString() !== req.user._id.toString()
-    ) {
-      res.status(403);
-      throw new Error('Not authorized to view this task');
+    // Check if the user is authorized to view this task
+    // Admin can view ANY task, regardless of assignment
+    const isAdmin = req.user.role === 'admin';
+    const isAssignedUser =
+      task.assignedTo._id.toString() === req.user._id.toString();
+    const isCreator = task.createdBy._id.toString() === req.user._id.toString();
+
+    if (!isAdmin && !isAssignedUser && !isCreator) {
+      return res
+        .status(403)
+        .json({ message: 'Not authorized to view this task' });
     }
 
     if (!res.headersSent) {
@@ -102,21 +113,39 @@ const updateTask = asyncHandler(async (req, res) => {
       task.createdBy.toString() !== req.user._id.toString() &&
       req.user.role !== 'admin'
     ) {
-      res.status(401).json({
+      res.status(403).json({
         message:
           'You can only update tasks you created || Not authorized to update this task',
       });
     }
 
-    // Update fields
-    const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, {
+    // Extract only the fields we want to allow updating
+    const { title, description, dueDate, priority, assignedTo } = req.body;
+
+    // Build update object with only provided fields
+    const updates = {};
+    if (title !== undefined) updates.title = title;
+    if (description !== undefined) updates.description = description;
+    if (dueDate !== undefined) updates.dueDate = dueDate;
+    if (priority !== undefined) updates.priority = priority;
+    if (assignedTo !== undefined) updates.assignedTo = assignedTo;
+
+    // Check if any fields were provided
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        message:
+          'Please provide at least one field to update: title, description, dueDate, priority, assignedTo',
+      });
+    }
+
+    const updatedTask = await Task.findByIdAndUpdate(req.params.id, updates, {
       new: true,
       runValidators: true,
     })
       .populate('assignedTo', 'username email')
       .populate('createdBy', 'username email');
 
-    res.json(updatedTask);
+    res.json({ message: 'Task updated successfully', task: updatedTask });
   } catch (error) {
     console.error('Update task error:', error);
     if (!res.headersSent) {
@@ -174,13 +203,14 @@ const updateTaskStatus = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: 'Task not found' });
     }
 
-    if (
-      task.assignedTo.toString() !== req.user._id.toString() &&
-      req.user.role !== 'admin'
-    ) {
-      return res.status(401).json({
-        message:
-          'You can only update tasks you created || Not authorized to update status for this task',
+    // Allow admin OR assigned user to update status
+    const isAdmin = req.user.role === 'admin';
+    const isAssignedUser =
+      task.assignedTo.toString() === req.user._id.toString();
+
+    if (!isAdmin && !isAssignedUser) {
+      return res.status(403).json({
+        message: 'Not authorized to update status for this task',
       });
     }
 
@@ -209,17 +239,15 @@ const updateTaskPriority = asyncHandler(async (req, res) => {
     if (!task) {
       return res.status(404).json({ message: 'Task not found' });
     }
+    // Allow admin OR creator to update priority
+    const isAdmin = req.user.role === 'admin';
+    const isCreator = task.createdBy.toString() === req.user._id.toString();
 
-    if (
-      task.createdBy.toString() !== req.user._id.toString() &&
-      req.user.role !== 'admin'
-    ) {
-      res.status(401).json({
-        message:
-          'You can only update tasks you created || Not authorized to update priority for this task',
+    if (!isAdmin && !isCreator) {
+      return res.status(403).json({
+        message: 'Not authorized to update priority for this task',
       });
     }
-
     task.priority = priority;
     await task.save();
 
