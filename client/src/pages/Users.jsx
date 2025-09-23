@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth';
+// import { useAuth } from '../hooks/useAuth';
 import { usersAPI } from '../services/api';
 import Layout from '../components/Layout';
 import Button from '../components/ui/Button';
@@ -7,7 +7,7 @@ import Modal from '../components/ui/Modal';
 import { FiEdit, FiTrash2, FiUserCheck, FiUserX } from 'react-icons/fi';
 
 const Users = () => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState(null);
@@ -78,7 +78,9 @@ const Users = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Users Management</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Users Management
+            </h1>
             <p className="text-gray-600">Manage system users (Admin only)</p>
           </div>
         </div>
@@ -126,31 +128,43 @@ const Users = () => {
                       {userItem.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        userItem.role === 'admin' 
-                          ? 'bg-purple-100 text-purple-800' 
-                          : 'bg-green-100 text-green-800'
-                      }`}>
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          userItem.role === 'admin'
+                            ? 'bg-purple-100 text-purple-800'
+                            : 'bg-green-100 text-green-800'
+                        }`}
+                      >
                         {userItem.role}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        userItem.isActive 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          userItem.isActive
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
                         {userItem.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <button
-                        onClick={() => handleToggleStatus(userItem._id, userItem.isActive)}
+                        onClick={() =>
+                          handleToggleStatus(userItem._id, userItem.isActive)
+                        }
                         className={`${
-                          userItem.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'
+                          userItem.isActive
+                            ? 'text-red-600 hover:text-red-900'
+                            : 'text-green-600 hover:text-green-900'
                         }`}
                       >
-                        {userItem.isActive ? <FiUserX className="w-4 h-4" /> : <FiUserCheck className="w-4 h-4" />}
+                        {userItem.isActive ? (
+                          <FiUserX className="w-4 h-4" />
+                        ) : (
+                          <FiUserCheck className="w-4 h-4" />
+                        )}
                       </button>
                       <button
                         onClick={() => {
@@ -187,28 +201,40 @@ const Users = () => {
           {editingUser && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Username</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Username
+                </label>
                 <input
                   type="text"
                   value={editingUser.username}
-                  onChange={(e) => setEditingUser({...editingUser, username: e.target.value})}
+                  onChange={(e) =>
+                    setEditingUser({ ...editingUser, username: e.target.value })
+                  }
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Email
+                </label>
                 <input
                   type="email"
                   value={editingUser.email}
-                  onChange={(e) => setEditingUser({...editingUser, email: e.target.value})}
+                  onChange={(e) =>
+                    setEditingUser({ ...editingUser, email: e.target.value })
+                  }
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Role</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Role
+                </label>
                 <select
                   value={editingUser.role}
-                  onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
+                  onChange={(e) =>
+                    setEditingUser({ ...editingUser, role: e.target.value })
+                  }
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="user">User</option>
@@ -219,7 +245,10 @@ const Users = () => {
                 <Button variant="secondary" onClick={() => setShowModal(false)}>
                   Cancel
                 </Button>
-                <Button variant="primary" onClick={() => handleUpdateUser(editingUser)}>
+                <Button
+                  variant="primary"
+                  onClick={() => handleUpdateUser(editingUser)}
+                >
                   Update User
                 </Button>
               </div>

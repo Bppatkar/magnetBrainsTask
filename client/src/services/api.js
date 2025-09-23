@@ -40,8 +40,10 @@ export const tasksAPI = {
   createTask: (taskData) => api.post('/tasks', taskData),
   updateTask: (id, taskData) => api.put(`/tasks/${id}`, taskData),
   deleteTask: (id) => api.delete(`/tasks/${id}`),
-  updateTaskStatus: (id, status) => api.patch(`/tasks/${id}/status`, { status }),
-  updateTaskPriority: (id, priority) => api.patch(`/tasks/${id}/priority`, { priority }),
+  updateTaskStatus: (id, status) =>
+    api.patch(`/tasks/${id}/status`, { status }),
+  updateTaskPriority: (id, priority) =>
+    api.patch(`/tasks/${id}/priority`, { priority }),
 };
 
 // Users API (for admin)
@@ -50,7 +52,6 @@ export const usersAPI = {
   getUserById: (id) => api.get(`/users/${id}`),
   updateUser: (id, userData) => api.put(`/users/${id}`, userData),
   deleteUser: (id) => api.delete(`/users/${id}`),
-  updateUserStatus: (id, isActive) => api.patch(`/users/${id}/status`, { isActive }),
 };
 
 export default api;

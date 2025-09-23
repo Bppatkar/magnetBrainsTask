@@ -16,6 +16,11 @@ const Navbar = () => {
     navigate('/login');
   };
 
+  // Don't show navbar if user is not logged in
+  if (!user) {
+    return null;
+  }
+
   return (
     <nav className="bg-white shadow-lg">
       <div className="container mx-auto px-4">
@@ -26,7 +31,7 @@ const Navbar = () => {
             <span>TaskFlow</span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - Only show if user is logged in */}
           <div className="hidden md:flex space-x-8">
             <Link 
               to="/dashboard" 
@@ -60,7 +65,7 @@ const Navbar = () => {
             <FiMenu className="w-5 h-5" />
           </button>
 
-          {/* User Menu */}
+          {/* User Menu - Only show if user is logged in */}
           <div className="hidden md:flex items-center space-x-4">
             <span className="text-sm text-gray-700">
               Welcome, {user?.username}
