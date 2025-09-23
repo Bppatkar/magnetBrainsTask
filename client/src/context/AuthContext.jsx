@@ -34,21 +34,43 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (credentials) => {
-    const response = await authAPI.login(credentials);
-    const { token, ...userData } = response.data;
+    try {
+      const response = await authAPI.login(credentials);
 
-    localStorage.setItem('token', token);
-    setUser(userData);
-    return response.data;
+      if (response.data && response.data.token) {
+        const { token, ...userData } = response.data;
+        localStorage.setItem('token', token);
+        setUser(userData);
+        return response.data;
+      } else {
+        throw new Error('Login failed: No token received');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      // Clear any existing token
+      localStorage.removeItem('token');
+      throw error;
+    }
   };
 
   const register = async (userData) => {
-    const response = await authAPI.register(userData);
-    const { token, ...userInfo } = response.data;
+    try {
+      const response = await authAPI.register(userData);
 
-    localStorage.setItem('token', token);
-    setUser(userInfo);
-    return response.data;
+      if (response.data && response.data.token) {
+        const { token, ...userInfo } = response.data;
+        localStorage.setItem('token', token);
+        setUser(userInfo);
+        return response.data;
+      } else {
+        throw new Error('Registration failed: No token received');
+      }
+    } catch (error) {
+      console.error('Register error:', error);
+      // Clear any existing token
+      localStorage.removeItem('token');
+      throw error;
+    }
   };
 
   const logout = () => {

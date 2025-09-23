@@ -9,6 +9,13 @@ const TaskCard = ({
   onPriorityUpdate,
   user,
 }) => {
+  if (!task || !task.createdBy || !task.assignedTo || !user) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="text-red-500">Error: Invalid task data</div>
+      </div>
+    );
+  }
   const isCreator = task.createdBy._id === user?._id;
   const isAssigned = task.assignedTo._id === user?._id;
   const isAdmin = user?.role === 'admin';

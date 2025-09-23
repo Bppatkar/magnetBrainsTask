@@ -109,10 +109,18 @@ const Dashboard = () => {
   };
 
   const filteredTasks = tasks.filter((task) => {
-    if (filter === 'all') return true;
-    if (filter === 'assigned') return task.assignedTo._id === user._id;
-    if (filter === 'created') return task.createdBy._id === user._id;
-    return true;
+    if (!task || !task.assignedTo || !task.createdBy || !user) return false;
+
+    switch (filter) {
+      case 'all':
+        return true;
+      case 'assigned':
+        return task.assignedTo._id === user._id;
+      case 'created':
+        return task.createdBy._id === user._id;
+      default:
+        return true;
+    }
   });
 
   return (
