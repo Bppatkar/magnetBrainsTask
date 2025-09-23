@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import asyncHandler from 'express-async-handler';
 
 // Helper function to generate a JWT
 const generateToken = (id) => {
@@ -8,9 +9,13 @@ const generateToken = (id) => {
   });
 };
 
-const registerUser = async (req, res) => {
+const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
+  if (!username || !email || !password) {
+    res.status(400);
+    throw new Error('Please add all fields');
+  }
   try {
     const userExists = await User.findOne({ email });
 
@@ -23,18 +28,16 @@ const registerUser = async (req, res) => {
     const user = await User.create({ username, email, password });
 
     if (user) {
-      if (!res.headersSent) {
-        res.status(201).json({
-          _id: user._id,
-          username: user.username,
-          email: user.email,
-          token: generateToken(user._id),
-        });
-      }
+      res.status(201).json({
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user._id),
+      });
     } else {
-      if (!res.headersSent) {
-        res.status(400).json({ message: 'Invalid user data' });
-      }
+      res.status(400);
+      throw new Error('Invalid user data');
     }
   } catch (error) {
     console.error('Register error:', error);
@@ -42,27 +45,25 @@ const registerUser = async (req, res) => {
       res.status(500).json({ message: error.message });
     }
   }
-};
+});
 
-const loginUser = async (req, res) => {
+const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
-      if (!res.headersSent) {
-        res.json({
-          _id: user._id,
-          username: user.username,
-          email: user.email,
-          token: generateToken(user._id),
-        });
-      }
+      res.json({
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user._id),
+      });
     } else {
-      if (!res.headersSent) {
-        res.status(401).json({ message: 'Invalid email or password' });
-      }
+      res.status(401);
+      throw new Error('Invalid email or password');
     }
   } catch (error) {
     console.error('Login error:', error);
@@ -70,7 +71,7 @@ const loginUser = async (req, res) => {
       res.status(500).json({ message: error.message });
     }
   }
-};
+});
 
 const getUserProfile = async (req, res) => {
   // `req.user` is populated by the `isValid` middleware

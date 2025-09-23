@@ -30,7 +30,7 @@ const expressLogger = expressWinston.logger({
   meta: false,
   msg: 'HTTP {{req.method}} {{req.url}} {{res.statusCode}} {{res.responseTime}}ms',
   colorize: true,
-  ignoreRoute: (req, res) => {
+  ignoreRoute: (req) => {
     // Don't log sensitive routes or health checks
     return req.url.includes('/api/auth') || req.url === '/api/health';
   },

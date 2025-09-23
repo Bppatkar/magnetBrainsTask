@@ -1,16 +1,13 @@
 import { FaExclamationTriangle } from 'react-icons/fa';
 
-const ConfirmationModal = ({ show, onClose, onConfirm, message }) => {
-  if (!show) {
-    return null;
-  }
-
+const ConfirmationModal = ({ onClose, onConfirm }) => {
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 bg-opacity-90 flex items-center justify-center z-50 p-4">
       <div className="bg-white/90 backdrop-blur-lg p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center border-t-4 border-indigo-500">
         <FaExclamationTriangle className="text-indigo-500 text-5xl mx-auto mb-4 drop-shadow-lg" />
-        <h3 className="text-2xl font-extrabold text-gray-900 mb-2 tracking-tight">Are you sure?</h3>
-        <p className="text-gray-700 mb-8">{message}</p>
+        <h3 className="text-2xl font-extrabold text-gray-900 mb-2 tracking-tight">
+          Are you sure?
+        </h3>
         <div className="flex justify-center gap-4">
           <button
             onClick={onConfirm}

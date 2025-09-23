@@ -1,117 +1,116 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import api from '../api/api.js';
+import {
+  createTask,
+  deleteTask,
+  getTasks,
+  updateTask,
+  updateTaskPriority,
+  updateTaskStatus,
+} from '../api/api.js';
 import { useAuth } from './AuthContext.jsx';
 
 const TaskContext = createContext();
 
 export const useTasks = () => {
-  const context = useContext(TaskContext);
-  if (!context) {
-    throw new Error('useTasks must be used within a TaskProvider');
-  }
-  return context;
+  return useContext(TaskContext);
 };
 
 export const TaskProvider = ({ children }) => {
+  const { currentUser } = useAuth();
   const [tasks, setTasks] = useState([]);
-  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const { user } = useAuth();
-  const [usersFetched, setUsersFetched] = useState(false);
+  const [error, setError] = useState(null);
 
   const fetchTasks = async () => {
+    if (!currentUser) return;
+    setLoading(true);
     try {
-      setLoading(true);
-      const res = await api.get('/tasks');
-      setTasks(res.data);
-      setError('');
+      const { data } = await getTasks();
+      setTasks(data);
+      setError(null);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch tasks');
       console.error('Fetch tasks error:', err);
+      setTasks([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const extractUsersFromTasks = () => {
-    const uniqueUsers = {};
-    tasks.forEach(task => {
-      if (task.createdBy && task.createdBy._id) {
-        uniqueUsers[task.createdBy._id] = task.createdBy;
-      }
-      if (task.assignedTo && task.assignedTo._id) {
-        uniqueUsers[task.assignedTo._id] = task.assignedTo;
-      }
-    });
-    
-    // Add current user if not in the list
-    if (user && !uniqueUsers[user._id]) {
-      uniqueUsers[user._id] = user;
-    }
-    
-    setUsers(Object.values(uniqueUsers));
-  };
-
-  const createTask = async (taskData) => {
+  const handleCreateTask = async (taskData) => {
     try {
-      const res = await api.post('/tasks', taskData);
-      setTasks(prev => [...prev, res.data]);
-      return res.data;
+      const { data } = await createTask(taskData);
+      setTasks((prevTasks) => [...prevTasks, data]);
+      return data;
     } catch (err) {
-      throw new Error(err.response?.data?.message || 'Failed to create task');
+      setError(err.response?.data?.message || 'Failed to create task.');
     }
   };
 
-  const updateTask = async (id, updates) => {
+  const handleUpdateTask = async (id, taskData) => {
     try {
-      const res = await api.put(`/tasks/${id}`, updates);
-      setTasks(prev => prev.map(task => 
-        task._id === id ? { ...task, ...res.data } : task
-      ));
-      return res.data;
+      const { data } = await updateTask(id, taskData);
+      setTasks((prevTasks) =>
+        prevTasks.map((task) => (task._id === id ? data : task))
+      );
+      return data;
     } catch (err) {
-      throw new Error(err.response?.data?.message || 'Failed to update task');
+      setError(err.response?.data?.message || 'Failed to update task.');
     }
   };
 
-  const deleteTask = async (id) => {
+  const handleDeleteTask = async (id) => {
     try {
-      await api.delete(`/tasks/${id}`);
-      setTasks(prev => prev.filter(task => task._id !== id));
+      await deleteTask(id);
+      setTasks((prevTasks) => prevTasks.filter((task) => task._id !== id));
     } catch (err) {
-      throw new Error(err.response?.data?.message || 'Failed to delete task');
+      setError(err.response?.data?.message || 'Failed to delete task.');
+    }
+  };
+
+  const handleUpdateTaskStatus = async (id, status) => {
+    try {
+      const { data } = await updateTaskStatus(id, status);
+      setTasks((prevTasks) =>
+        prevTasks.map((task) => (task._id === id ? data : task))
+      );
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update task status.');
+    }
+  };
+
+  const handleUpdateTaskPriority = async (id, priority) => {
+    try {
+      const { data } = await updateTaskPriority(id, priority);
+      setTasks((prevTasks) =>
+        prevTasks.map((task) => (task._id === id ? data : task))
+      );
+    } catch (err) {
+      setError(
+        err.response?.data?.message || 'Failed to update task priority.'
+      );
     }
   };
 
   useEffect(() => {
-    if (user) {
+    if (currentUser) {
       fetchTasks();
+    } else {
+      setTasks([]);
     }
-  }, [user]);
-
-  // Extract users from tasks after they are loaded
-  useEffect(() => {
-    if (tasks.length > 0 && !usersFetched) {
-      extractUsersFromTasks();
-      setUsersFetched(true);
-    }
-  }, [tasks, usersFetched]);
+  }, [currentUser]);
 
   const value = {
     tasks,
-    users,
     loading,
     error,
     fetchTasks,
-    createTask,
-    updateTask,
-    deleteTask,
+    handleCreateTask,
+    handleUpdateTask,
+    handleDeleteTask,
+    handleUpdateTaskStatus,
+    handleUpdateTaskPriority,
   };
 
-  return (
-    <TaskContext.Provider value={value}>
-      {children}
-    </TaskContext.Provider>
-  );
+  return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;
 };

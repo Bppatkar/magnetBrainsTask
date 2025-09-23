@@ -1,7 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend for a simple task management system",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -23,7 +23,8 @@
     "express-rate-limit": "^8.1.0",
     "joi": "^18.0.1",
     "winston": "^3.8.2",
-    "express-winston": "^4.2.0"
+    "express-winston": "^4.2.0",
+    "express-async-handler": "^1.2.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

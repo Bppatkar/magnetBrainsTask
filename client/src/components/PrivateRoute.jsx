@@ -5,10 +5,6 @@ const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  if (location.pathname === '/') {
-    return children;
-  }
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -17,8 +13,11 @@ const PrivateRoute = ({ children }) => {
     );
   }
 
-  // Protect dashboard and other private routes
-  if (!user && location.pathname !== '/') {
+  if (location.pathname === '/') {
+    return children;
+  }
+
+  if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
