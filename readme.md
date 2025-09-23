@@ -3,25 +3,28 @@
 │ ├── /public
 │ ├── /src
 ├── components/
-│ ├── ui/ # shadcnUI components
-│ ├── Layout.jsx # Main layout
-│ ├── Navbar.jsx # Navigation
-│ ├── TaskForm.jsx # Create/Edit task form
-│ ├── TaskList.jsx # Task listing
-│ └── TaskCard.jsx # Individual task card
+│ ├── ui
+  --> Button.jsx
+  --> Input.jsx
+  --> Modal.jsx
+│ ├── Layout.jsx 
+│ ├── Navbar.jsx 
+│ ├── TaskForm.jsx 
+│ ├── TaskList.jsx 
+│ └── TaskCard.jsx 
 ├── pages/
-│ ├── Login.jsx # Login page
-│ ├── Register.jsx # Register page
-│ ├── Dashboard.jsx # Main dashboard
-│ └── Profile.jsx # User profile
+│ ├── Login.jsx 
+│ ├── Register.jsx 
+│ ├── Dashboard.jsx 
+│ └── Profile.jsx 
 ├── services/
-│ └── api.js # API calls
+│ └── api.js 
 ├── context/
-│ └── AuthContext.jsx # Authentication context
+│ └── AuthContext.jsx 
 ├── hooks/
-│ └── useAuth.js # Authentication hook
+│ └── useAuth.js 
 └── utils/
-└── constants.js # Constants
+└── constants.js 
 │ │ ├── App.jsx
 │ │ ├── main.jsx
 │ │ └── app.css

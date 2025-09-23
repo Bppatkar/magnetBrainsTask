@@ -13,8 +13,9 @@ const TaskForm = ({ task, onSubmit, onCancel, users = [] }) => {
 
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
+   useEffect(() => {
     if (task) {
+      // Editing existing task
       setFormData({
         title: task.title,
         description: task.description,
@@ -22,8 +23,15 @@ const TaskForm = ({ task, onSubmit, onCancel, users = [] }) => {
         priority: task.priority,
         assignedTo: task.assignedTo._id
       });
+    } else {
+      // Creating new task - set default assignedTo
+      const defaultAssignedTo = users.length > 0 ? users[0]._id : '';
+      setFormData(prev => ({ 
+        ...prev, 
+        assignedTo: defaultAssignedTo 
+      }));
     }
-  }, [task]);
+  }, [task, users]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -108,12 +116,16 @@ const TaskForm = ({ task, onSubmit, onCancel, users = [] }) => {
           onChange={handleChange}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
-          <option value="">Select user</option>
-          {users.map(user => (
-            <option key={user._id} value={user._id}>
-              {user.username} ({user.email})
-            </option>
-          ))}
+          {users.length > 0 ? (
+            users.map(userItem => (
+              <option key={userItem._id} value={userItem._id}>
+                {userItem.username} ({userItem.email})
+                {userItem._id === users._id ? ' (you)' : ''}
+              </option>
+            ))
+          ) : (
+            <option value="">No users available</option>
+          )}
         </select>
         {errors.assignedTo && <p className="text-red-500 text-sm mt-1">{errors.assignedTo}</p>}
       </div>

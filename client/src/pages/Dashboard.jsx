@@ -19,9 +19,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchTasks();
-    if (user?.role === 'admin') {
-      fetchUsers();
-    }
+    fetchUsers();
   }, [user]);
 
   const fetchTasks = async () => {
@@ -37,10 +35,31 @@ const Dashboard = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await usersAPI.getUsers();
-      setUsers(response.data);
+      if (user?.role === 'admin') {
+        // Admin can see all users
+        const response = await usersAPI.getUsers();
+        setUsers(response.data);
+      } else {
+        // Regular users should see at least themselves for assignment
+        // For now, we'll create a mock user array with just the current user
+        setUsers([
+          {
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+          },
+        ]);
+      }
     } catch (error) {
       console.error('Error fetching users:', error);
+      // Fallback: create array with current user
+      setUsers([
+        {
+          _id: user._id,
+          username: user.username,
+          email: user.email,
+        },
+      ]);
     }
   };
 
@@ -99,7 +118,7 @@ const Dashboard = () => {
     }
   };
 
-  const filteredTasks = tasks.filter(task => {
+  const filteredTasks = tasks.filter((task) => {
     if (filter === 'all') return true;
     if (filter === 'assigned') return task.assignedTo._id === user._id;
     if (filter === 'created') return task.createdBy._id === user._id;
@@ -115,7 +134,7 @@ const Dashboard = () => {
             <h1 className="text-3xl font-bold text-gray-900">Task Dashboard</h1>
             <p className="text-gray-600">Manage your tasks efficiently</p>
           </div>
-          <Button 
+          <Button
             onClick={() => setShowModal(true)}
             variant="primary"
             className="flex items-center space-x-2"
@@ -130,8 +149,8 @@ const Dashboard = () => {
           <button
             onClick={() => setFilter('all')}
             className={`px-4 py-2 rounded-lg ${
-              filter === 'all' 
-                ? 'bg-blue-600 text-white' 
+              filter === 'all'
+                ? 'bg-blue-600 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
@@ -140,8 +159,8 @@ const Dashboard = () => {
           <button
             onClick={() => setFilter('assigned')}
             className={`px-4 py-2 rounded-lg ${
-              filter === 'assigned' 
-                ? 'bg-blue-600 text-white' 
+              filter === 'assigned'
+                ? 'bg-blue-600 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >
@@ -150,8 +169,8 @@ const Dashboard = () => {
           <button
             onClick={() => setFilter('created')}
             className={`px-4 py-2 rounded-lg ${
-              filter === 'created' 
-                ? 'bg-blue-600 text-white' 
+              filter === 'created'
+                ? 'bg-blue-600 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
           >

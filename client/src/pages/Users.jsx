@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-// import { useAuth } from '../hooks/useAuth';
 import { usersAPI } from '../services/api';
 import Layout from '../components/Layout';
 import Button from '../components/ui/Button';
@@ -7,7 +6,6 @@ import Modal from '../components/ui/Modal';
 import { FiEdit, FiTrash2, FiUserCheck, FiUserX } from 'react-icons/fi';
 
 const Users = () => {
-  // const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState(null);
